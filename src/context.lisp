@@ -42,8 +42,8 @@
 (declaim (ftype (function (ui) (values &optional)) dispose-ui))
 (defun dispose-ui (ui)
   (yogalayout:config-free (ui-yoga-config ui))
-  (ui-clear-blend2d-rect-pool ui)
-  (ui-clear-blend2d-point-pool ui)
+  (clear-blend2d-rect-pool ui)
+  (clear-blend2d-point-pool ui)
   (values))
 
 (export 'insert-window)
@@ -132,8 +132,8 @@
             #:do ,free-form)
       (setf (fill-pointer (,pool-accessor ui)) 0))))
 
-(define-pool-functions "BLEND2D-RECT" context-blend2d-rect-pool (autowrap:alloc '%blend2d:rect) (x (autowrap:free x)))
-(define-pool-functions "BLEND2D-POINT" context-blend2d-point-pool (autowrap:alloc '%blend2d:point) (x (autowrap:free x)))
+(define-pool-functions "BLEND2D-RECT" ui-blend2d-rect-pool (autowrap:alloc '%blend2d:rect) (x (autowrap:free x)))
+(define-pool-functions "BLEND2D-POINT" ui-blend2d-point-pool (autowrap:alloc '%blend2d:point) (x (autowrap:free x)))
 
 (export '*ui*)
 (eval-when (:compile-toplevel :load-toplevel :execute)

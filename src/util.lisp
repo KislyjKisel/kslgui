@@ -64,6 +64,21 @@
   (setf (aref vector index) value)
   vector)
 
+(declaim (inline uint->int))
+(defun uint->int (uint int-size)
+  ;; From https://github.com/EuAndreh/cl-intbytes
+  (let ((sign-bit-position (1- int-size))
+        (max-uint (expt 2 int-size)))
+    (if (logbitp sign-bit-position uint)
+        (- uint max-uint)
+        uint)))
+
+(declaim
+  (inline uint32->int32)
+  (ftype (function ((unsigned-byte 32)) (values (signed-byte 32) &optional)) uint32->int32))
+(defun uint32->int32 (uint32)
+  (uint->int uint32 32))
+
 (defun map-plist-to-list (fn plist)
   "Processes key-value pairs in PLIST using (FUNCALL FN KEY VALUE) and collects results in a list."
   (loop #:for (key value) #:on plist #:by #'cddr

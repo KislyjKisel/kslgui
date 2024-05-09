@@ -90,8 +90,7 @@
 (declaim (ftype (function (ui window %blend2d:rect %blend2d:point) (values &optional)) render-window))
 (defun render-window (ui window clip-rect translate-point)
   (when (not (window-widget window))
-        (error "Window can't be rendered because it was not composed before."))
-  (sdet:run-effects (ui-sdet-context ui))
+        (return-from render-window (values)))
   (yogalayout:node-calculate-layout (widget-yoga-node (window-widget window))
                                     (coerce (window-width window) 'single-float)
                                     (coerce (window-height window) 'single-float)
@@ -124,6 +123,7 @@
 (export 'render)
 (declaim (ftype (function (ui &key (:clear boolean) (:defer-flush boolean)) (values &optional)) render))
 (defun render (ui &key (clear t) (defer-flush nil))
+  (sdet:run-effects (ui-sdet-context ui))
   (let ((clip-rect (alloc-blend2d-rect ui))
         (translate-point (alloc-blend2d-point ui)))
     (maphash (lambda (layer windows)
@@ -142,13 +142,13 @@
                                     (coerce (ui-cursor-y ui) 'double-float)))
                (unless defer-flush
                  (%blend2d:context-flush (layer-context layer)
-                                         %blend2d:+context-flush-sync+)))
+                                         (uint32->int32 %blend2d:+context-flush-sync+))))
              (ui-windows ui))
     (when defer-flush
           (alexandria:maphash-keys
             (lambda (layer)
               (%blend2d:context-flush (layer-context layer)
-                                      %blend2d:+context-flush-sync+))
+                                      (uint32->int32 %blend2d:+context-flush-sync+)))
             (ui-windows ui)))
     (free-blend2d-point ui translate-point)
     (free-blend2d-rect ui clip-rect))
