@@ -6,7 +6,7 @@
 (defstruct (visual-state (:copier nil))
   (render (error "Default VISUAL-STATE-RENDER used")
           :type (function (ui visual-state double-float double-float double-float double-float) (values &optional)))
-  (dispose (error "Default VISUAL-STATE-DISPOSE used")
+  (destroy (error "Default VISUAL-STATE-DESTROY used")
            :type (function (visual-state) (values &optional)))
   (hitp nil :type (or null (function (ui visual-state double-float double-float double-float double-float double-float double-float) (values boolean &optional)))))
 
@@ -34,7 +34,7 @@
      (cond
       ((null ,vstate-sym) (,create-fn ,vdescr-sym))
       ((typep ,vstate-sym ',vstate-type) ,@body ,vstate-sym)
-      (t (funcall (visual-state-dispose ,vstate-sym) ,vstate-sym)
+      (t (funcall (visual-state-destroy ,vstate-sym) ,vstate-sym)
          (,create-fn ,vdescr-sym)))))
 
 (export 'update-shape-visual-fields)
@@ -46,11 +46,11 @@
                                                        (coerce (shape-visual-description-border-width vdescr) 'double-float)))
   vstate)
 
-(export 'dispose-shape-visual-fields)
-(declaim (inline dispose-shape-visual-fields))
-(defun dispose-shape-visual-fields (vstate)
-  (dispose-style (shape-visual-state-fill-style vstate))
-  (dispose-style (shape-visual-state-border-style vstate))
+(export 'destroy-shape-visual-fields)
+(declaim (inline destroy-shape-visual-fields))
+(defun destroy-shape-visual-fields (vstate)
+  (destroy-style (shape-visual-state-fill-style vstate))
+  (destroy-style (shape-visual-state-border-style vstate))
   (values))
 
 (export 'render-visual)
@@ -68,17 +68,17 @@
             (funcall (visual-state-render vstate) ui vstate x y w h)))
   (values))
 
-(export 'dispose-visual)
+(export 'destroy-visual)
 (declaim
-  (inline dispose-visual)
-  (ftype (function ((or null visual-state (vector (or null visual-state)))) (values &optional)) dispose-visual))
-(defun dispose-visual (vstate)
+  (inline destroy-visual)
+  (ftype (function ((or null visual-state (vector (or null visual-state)))) (values &optional)) destroy-visual))
+(defun destroy-visual (vstate)
   (if (arrayp vstate)
       (loop #:for item #:across vstate #:do
             (when item
-                  (funcall (visual-state-dispose item) item)))
+                  (funcall (visual-state-destroy item) item)))
       (when vstate
-            (funcall (visual-state-dispose vstate) vstate)))
+            (funcall (visual-state-destroy vstate) vstate)))
   (values))
 
 (export 'update-visual)
@@ -91,5 +91,5 @@
   (if vdescr
       (funcall (visual-description-update vdescr) vdescr vstate)
       (progn
-       (dispose-visual vstate)
+       (destroy-visual vstate)
        nil)))

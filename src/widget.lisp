@@ -53,8 +53,8 @@
             (setf (ui-temp-root ui) widget))))
   (values))
 
-(export 'dispose-widget)
-(defun dispose-widget (widget)
+(export 'destroy-widget)
+(defun destroy-widget (widget)
   (let ((parent (widget-parent widget)))
     (when parent
           (setf (widget-children parent) (vector-delete widget (widget-children parent)))

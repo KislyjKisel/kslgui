@@ -359,10 +359,10 @@
                         (render-visual ui thumb-visual (+ bar-x thumb-bar-offset) thumb-y thumb-width thumb-length))))))
         (values)))
     (lambda ()
-      (dispose-visual (scroll-widget-background-visual widget))
-      (dispose-visual (scroll-widget-bar-visual widget))
-      (dispose-visual (scroll-widget-thumb-visual widget))
-      (dispose-widget widget)
+      (destroy-visual (scroll-widget-background-visual widget))
+      (destroy-visual (scroll-widget-bar-visual widget))
+      (destroy-visual (scroll-widget-thumb-visual widget))
+      (destroy-widget widget)
       (values))))
 
 (defmacro w-scroll (layout (&key ui let z-index position-type

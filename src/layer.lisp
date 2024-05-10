@@ -1,8 +1,8 @@
 (in-package #:kslgui)
 
-(export '(layer make-layer layer-context))
+(export '(layer create-layer layer-context))
 (defstruct (layer (:copier nil)
-                  (:constructor make-layer (image
+                  (:constructor create-layer (image
                                             &key (cci nil)
                                             &aux (context
                                                   (let ((context (autowrap:alloc '%blend2d:context-core)))
@@ -12,9 +12,9 @@
                                                     context)))))
   (context (unreachable) :type %blend2d:context-core :read-only t))
 
-(export 'dispose-layer)
-(declaim (ftype (function (layer) (values &optional)) dispose-layer))
-(defun dispose-layer (layer)
+(export 'destroy-layer)
+(declaim (ftype (function (layer) (values &optional)) destroy-layer))
+(defun destroy-layer (layer)
   "Destroys blend2d context. Using this layer afterwards causes UB."
   (%blend2d:context-destroy (layer-context layer))
   (autowrap:free (layer-context layer))

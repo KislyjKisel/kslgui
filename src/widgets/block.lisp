@@ -14,7 +14,7 @@
     (when set-layout (funcall set-layout widget))
     (when make-children (append-children ui widget make-children))
     (lambda ()
-      (dispose-widget widget)
+      (destroy-widget widget)
       (values))))
 
 (defmacro w-block* (layout (&key ui let z-index position-type

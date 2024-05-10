@@ -73,8 +73,8 @@
                        (coerce (widget-height widget) 'double-float))
         (values)))
     (lambda ()
-      (dispose-visual (button-widget-visual widget))
-      (dispose-widget widget)
+      (destroy-visual (button-widget-visual widget))
+      (destroy-widget widget)
       (values))))
 
 (defmacro w-button (&key ui layout let z-index position-type

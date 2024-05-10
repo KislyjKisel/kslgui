@@ -13,7 +13,7 @@
                                             (fill-rule
                                              &aux
                                              (render #'path-visual-state-render-impl)
-                                             (dispose #'path-visual-state-dispose-impl)
+                                             (destroy #'path-visual-state-destroy-impl)
                                              (hitp #'path-visual-state-hitp-impl)
                                              (path (autowrap:alloc '%blend2d:path-core))))
                               (:copier nil))
@@ -61,8 +61,8 @@
     (ui-free-blend2d-point ui origin))
   (values))
 
-(defun path-visual-state-dispose-impl (vstate)
-  (dispose-shape-visual-fields vstate)
+(defun path-visual-state-destroy-impl (vstate)
+  (destroy-shape-visual-fields vstate)
   (%blend2d:path-destroy (path-visual-state-path vstate))
   (autowrap:free (path-visual-state-path vstate))
   (values))

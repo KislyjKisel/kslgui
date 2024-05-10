@@ -7,9 +7,9 @@
   (declare (ignore renderer blend2d-context cursor x y))
   (values))
 
-(export '(cursor-renderer make-cursor-renderer))
+(export '(cursor-renderer create-cursor-renderer))
 (defstruct (cursor-renderer (:copier nil)
-                            (:constructor make-cursor-renderer (&key (scale 1.0d0))))
+                            (:constructor create-cursor-renderer (&key (scale 1.0d0))))
   (path (let ((path (autowrap:alloc '%blend2d:path-core))) (%blend2d:path-init path) path))
   (origin (autowrap:alloc '%blend2d:point))
   (previous-cursor nil :type (or null cursor))
@@ -155,8 +155,8 @@
     (%blend2d:context-stroke-path-d-rgba32 ctx origin path #xFF000000))
   (values))
 
-(export 'dispose-cursor-renderer)
-(declaim (ftype (function (cursor-renderer) (values &optional)) dispose-cursor-renderer))
-(defun dispose-cursor-renderer (renderer)
+(export 'destroy-cursor-renderer)
+(declaim (ftype (function (cursor-renderer) (values &optional)) destroy-cursor-renderer))
+(defun destroy-cursor-renderer (renderer)
   (autowrap:free (cursor-renderer-path renderer))
   (values))

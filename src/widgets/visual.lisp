@@ -32,8 +32,8 @@
                        (coerce (widget-height widget) 'double-float))
         (values)))
     (lambda ()
-      (dispose-visual (visual-widget-visual widget))
-      (dispose-widget widget)
+      (destroy-visual (visual-widget-visual widget))
+      (destroy-widget widget)
       (values))))
 
 (defmacro w-visual (visual (&key ui layout let z-index position-type

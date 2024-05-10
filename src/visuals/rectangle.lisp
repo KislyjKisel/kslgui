@@ -11,7 +11,7 @@
                                    (:constructor make-rectangle-visual-state
                                                  (&aux
                                                   (render #'rectangle-visual-state-render-impl)
-                                                  (dispose #'rectangle-visual-state-dispose-impl)
+                                                  (destroy #'rectangle-visual-state-destroy-impl)
                                                   (hitp #'rectangle-visual-state-hitp-impl)))
                                    (:copier nil)))
 
@@ -59,8 +59,8 @@
     (ui-free-blend2d-rect ui rect))
   (values))
 
-(defun rectangle-visual-state-dispose-impl (vstate)
-  (dispose-shape-visual-fields vstate)
+(defun rectangle-visual-state-destroy-impl (vstate)
+  (destroy-shape-visual-fields vstate)
   (values))
 
 (defun rectangle-visual-state-hitp-impl (ui vstate x y w h mx my)

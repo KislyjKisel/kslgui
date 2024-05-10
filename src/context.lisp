@@ -1,8 +1,8 @@
 (in-package #:kslgui)
 
-(export '(ui make-ui))
+(export '(ui create-ui))
 (defstruct (ui (:copier nil)
-               (:constructor make-ui (&key
+               (:constructor create-ui (&key
                                       (sdet-context (sdet:make-context))
                                       cursor-renderer
                                       &aux
@@ -14,6 +14,9 @@
   (scroll-sensitivity-y +base-scroll-sensitivity-y+ :type double-float)
   (reset-focus-on-mouse-down t :type boolean)
   (delta-time 0.0d0 :type double-float)
+  (time 0.0d0 :type double-float)
+  (start-time nil :type (or null double-float))
+  (previous-frame-time nil :type (or null double-float))
   (cursor-visible t :type boolean)
   (cursor-renderer nil :type t)
   (on-text-input-started nil :type (or null (function () (values &optional))))
@@ -38,13 +41,41 @@
   (blend2d-rect-pool (make-array 0 :adjustable t :fill-pointer 0) :type vector)
   (blend2d-point-pool (make-array 0 :adjustable t :fill-pointer 0) :type vector))
 
-(export 'dispose-ui)
-(declaim (ftype (function (ui) (values &optional)) dispose-ui))
-(defun dispose-ui (ui)
+(export 'destroy-ui)
+(declaim (ftype (function (ui) (values &optional)) destroy-ui))
+(defun destroy-ui (ui)
   (yogalayout:config-free (ui-yoga-config ui))
   (clear-blend2d-rect-pool ui)
   (clear-blend2d-point-pool ui)
   (values))
+
+(export 'time)
+(declaim
+  (inline time)
+  (ftype (function (ui) (values double-float &optional)) time))
+(defun time (ui)
+  (ui-time ui))
+
+(export 'delta-time)
+(declaim
+  (inline delta-time)
+  (ftype (function (ui) (values double-float &optional)) delta-time))
+(defun delta-time (ui)
+  (ui-delta-time ui))
+
+(export 'time-sf)
+(declaim
+  (inline time-sf)
+  (ftype (function (ui) (values single-float &optional)) time-sf))
+(defun time-sf (ui)
+  (coerce (ui-time ui) 'single-float))
+
+(export 'delta-time-sf)
+(declaim
+  (inline delta-time-sf)
+  (ftype (function (ui) (values single-float &optional)) delta-time-sf))
+(defun delta-time-sf (ui)
+  (coerce (ui-delta-time ui) 'single-float))
 
 (export 'insert-window)
 (defun insert-window (ui window)

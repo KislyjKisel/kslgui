@@ -1,8 +1,8 @@
 (in-package #:kslgui)
 
-(export '(window make-window window-layer))
+(export '(window create-window window-layer))
 (defstruct (window (:copier nil)
-                   (:constructor make-window (layer width height)))
+                   (:constructor create-window (layer width height)))
   (layer (unreachable) :type (or null layer))
   (sdet-root (sdet:make-root) :type sdet:root :read-only t)
   (widget nil :type (or null widget))
@@ -21,9 +21,9 @@
   (on-render-begin nil :type (or null (function (ui window) (values &optional))))
   (on-render-end nil :type (or null (function (ui window) (values &optional)))))
 
-(export 'dispose-window)
-(declaim (ftype (function (window) (values &optional)) dispose-window))
-(defun dispose-window (window)
+(export 'destroy-window)
+(declaim (ftype (function (window) (values &optional)) destroy-window))
+(defun destroy-window (window)
   (sdet:clean-root (window-sdet-root window))
   (values))
 

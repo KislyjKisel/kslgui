@@ -162,10 +162,10 @@
                              2.0d0
                              (textbox-widget-cursor-h widget)))))
     (lambda ()
-      (dispose-label (textbox-widget-label widget))
-      (dispose-visual (textbox-widget-background-visual widget))
-      (dispose-visual (textbox-widget-cursor-visual widget))
-      (dispose-widget widget)
+      (destroy-label (textbox-widget-label widget))
+      (destroy-visual (textbox-widget-background-visual widget))
+      (destroy-visual (textbox-widget-cursor-visual widget))
+      (destroy-widget widget)
       (values))))
 
 (defmacro w-textbox (&key ui layout let z-index position-type

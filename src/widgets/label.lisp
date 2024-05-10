@@ -4,7 +4,7 @@
 ;;; `font-cache`: cached sized font, metrics, space width
 
 (defstruct (font-cache (:copier nil))
-  (state :uninitialized :type (member :uninitialized :initialized :disposed))
+  (state :uninitialized :type (member :uninitialized :initialized :destroyed))
   (face)
   (font)
   (metrics)
@@ -40,7 +40,7 @@
                      :variation-settings variation-settings)))
 
 (defun free-font-cache (cache)
-  (setf (font-cache-state cache) :disposed)
+  (setf (font-cache-state cache) :destroyed)
   (%blend2d:font-destroy (font-cache-font cache))
   (autowrap:free (font-cache-font cache))
   (autowrap:free (font-cache-metrics cache))
@@ -382,9 +382,9 @@
     (setf (%yogalayout:size.width ret) width)
     (setf (%yogalayout:size.height ret) height)))
 
-(defun dispose-label (label)
+(defun destroy-label (label)
   (remhash (label-id label) *labels*)
-  (dispose-style (label-text-style label))
+  (destroy-style (label-text-style label))
   (label-clear-lines label)
   (free-font-cache (label-font-cache label))
   (autowrap.libffi:ffi-closure-free (label-measure-func-ffi-closure label))
@@ -475,8 +475,8 @@
                             overflow-text)
   (let ((font-size-computed (init-computed-prop widget font-size)))
     (sdet:make-effect (ui-sdet-context ui)
-      (when (eq (font-cache-state (label-font-cache label)) :disposed)
-            (error "Font cache was disposed before running its resizing effect."))
+      (when (eq (font-cache-state (label-font-cache label)) :destroyed)
+            (error "Font cache was destroyed before running its resizing effect."))
       (setf (label-requires-measure label) :yes)
       (resize-font-cache (label-font-cache label) (sdet:compute font-size-computed))
       nil))
@@ -653,8 +653,8 @@
                       (label-widget-label widget))
         (values)))
     (lambda ()
-      (dispose-label (label-widget-label widget))
-      (dispose-widget widget)
+      (destroy-label (label-widget-label widget))
+      (destroy-widget widget)
       (values))))
 
 (defmacro w-label (&key ui layout let z-index position-type
@@ -705,7 +705,7 @@
                               (:copier nil)
                               (:constructor make-visual-state-text (label &aux
                                                                           (render #'visual-state-text-render-impl)
-                                                                          (dispose #'visual-state-text-dispose-impl))))
+                                                                          (destroy #'visual-state-text-destroy-impl))))
   (label))
 
 (defun visual-description-text-aux (label vdescr)
@@ -743,6 +743,6 @@
                 (visual-state-text-label vstate))
   (values))
 
-(defun visual-state-text-dispose-impl (vstate)
-  (dispose-label (visual-state-text-label vstate))
+(defun visual-state-text-destroy-impl (vstate)
+  (destroy-label (visual-state-text-label vstate))
   (values))

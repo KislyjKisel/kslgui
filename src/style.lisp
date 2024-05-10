@@ -20,7 +20,7 @@
   (type :gradient :type (member :gradient))
   blend2d-object)
 
-(defun dispose-style (style)
+(defun destroy-style (style)
   (etypecase style
     (null)
     (integer)
@@ -30,10 +30,10 @@
 (defun create-style (old-style description)
   (etypecase description
     (null
-      (dispose-style old-style)
+      (destroy-style old-style)
       nil)
     (integer
-     (dispose-style old-style)
+     (destroy-style old-style)
      description)
     (gradient-style-description
      (if (or (null old-style) (integerp old-style))
