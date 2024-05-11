@@ -20,6 +20,7 @@
                 (setf (ui-temp-parent ui) nil)))))))
 
 ; todo: trivia / match variant (match (*computed*) ((a . b) (button)) (nil (label)))
+(export 'w-cond)
 (defmacro w-cond (&rest branches)
   "BRANCHES - list of (condition result)"
   `(w-cond-impl ,*ui*

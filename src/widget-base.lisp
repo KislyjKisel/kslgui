@@ -5,6 +5,7 @@
   #+sbcl (format s "#<widget ~x>" (sb-kernel:get-lisp-obj-address w))
   #-sbcl (format s "#<widget>"))
 
+(export '(widget make-widget))
 (defstruct (widget (:copier nil) (:print-function widget-print-function))
   (parent nil :type (or null widget))
   (children (make-array 0 :fill-pointer 0 :adjustable t) :type (vector widget))
@@ -118,3 +119,8 @@
 (defun observe-layout (widget)
   (funcall (widget-subscribe-layout-changed widget))
   (values))
+
+(export 'widget-enabled-p)
+(declaim (ftype (function (widget) (values boolean &optional)) widget-enabled-p))
+(defun widget-enabled-p (widget)
+  (sdet:compute (widget-enabled-computed widget)))

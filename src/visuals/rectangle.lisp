@@ -24,7 +24,7 @@
   (values))
 
 (defun rectangle-visual-state-render-impl (ui vstate x y width height)
-  (let ((rect (ui-alloc-blend2d-rect ui))
+  (let ((rect (alloc-blend2d-rect ui))
         (border-width (rectangle-visual-state-border-width vstate)))
     (when (rectangle-visual-state-fill-style vstate)
           (if border-width
@@ -56,7 +56,7 @@
             (%blend2d:context-stroke-geometry (layer-context (ui-temp-layer ui))
                                               %blend2d:+geometry-type-rectd+
                                               rect)))
-    (ui-free-blend2d-rect ui rect))
+    (free-blend2d-rect ui rect))
   (values))
 
 (defun rectangle-visual-state-destroy-impl (vstate)

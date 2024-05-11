@@ -137,10 +137,9 @@
                                  (coerce
                                    (* (sdet:unobserved (ui-sdet-context ui)
                                         (sdet:compute (scroll-widget-scroll-sensitivity-computed widget)))
-                                      (ui-scroll-sensitivity ui)
                                       (ecase (scroll-widget-axis widget)
-                                        (:x sx)
-                                        (:y sy)))
+                                        (:x (* sx (ui-scroll-sensitivity-x ui)))
+                                        (:y (* sy (ui-scroll-sensitivity-y ui)))))
                                    'double-float))))))
               (when (/= offset (scroll-widget-offset widget))
                     (setf (scroll-widget-offset widget) offset)
@@ -289,8 +288,8 @@
                                         (:y (- (scroll-content-max-y widget 0.0) (widget-yoga-y widget))))
                                       'double-float))
                  (scroll-length (- content-size-main widget-size-main))
-                 (offset (ui-alloc-blend2d-point ui))
-                 (clip (ui-alloc-blend2d-rect ui))
+                 (offset (alloc-blend2d-point ui))
+                 (clip (alloc-blend2d-rect ui))
                  ;; Don't move view in case content/thumb length changed
                  (adjusted-offset (if (< scroll-length 0.5)
                                       0.0d0
@@ -328,8 +327,8 @@
                                                  %blend2d:+transform-op-translate+
                                                  offset)
             (%blend2d:context-save (layer-context (ui-temp-layer ui)) (cffi:null-pointer)) ; TODO: why double-save ?
-            (ui-free-blend2d-rect ui clip)
-            (ui-free-blend2d-point ui offset)))
+            (free-blend2d-rect ui clip)
+            (free-blend2d-point ui offset)))
         (values)))
     (setf (widget-on-render-end widget)
       (lambda (ui widget)
@@ -365,6 +364,7 @@
       (destroy-widget widget)
       (values))))
 
+(export 'w-scroll)
 (defmacro w-scroll (layout (&key ui let z-index position-type
                                  (axis :y)
                                  (scroll-sensitivity 1.0)

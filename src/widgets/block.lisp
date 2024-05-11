@@ -17,20 +17,22 @@
       (destroy-widget widget)
       (values))))
 
+(export 'w-block*)
 (defmacro w-block* (layout (&key ui let z-index position-type
                                  (focus-behavior-as-sibling :to-children)
                                  (focus-behavior-as-parent-x :passthrough)
                                  (focus-behavior-as-parent-y :passthrough))
                            &body children)
   (macroexpand-with-ui ui
-  `(w-block-impl ,*ui*
-                 :set-layout ,(make-layout-setting-lambda *ui* layout)
-                 :make-children ,(make-children-making-lambda *ui* children :let let)
-                 :z-index ,(make-computed-prop z-index :let let)
-                 :position-type ,(make-computed-prop position-type :let let)
-                 :focus-behavior-as-sibling ,focus-behavior-as-sibling
-                 :focus-behavior-as-parent-x ,focus-behavior-as-parent-x
-                 :focus-behavior-as-parent-y ,focus-behavior-as-parent-y)))
+    `(w-block-impl ,*ui*
+                   :set-layout ,(make-layout-setting-lambda *ui* layout)
+                   :make-children ,(make-children-making-lambda *ui* children :let let)
+                   :z-index ,(make-computed-prop z-index :let let)
+                   :position-type ,(make-computed-prop position-type :let let)
+                   :focus-behavior-as-sibling ,focus-behavior-as-sibling
+                   :focus-behavior-as-parent-x ,focus-behavior-as-parent-x
+                   :focus-behavior-as-parent-y ,focus-behavior-as-parent-y)))
 
+(export 'w-block)
 (defmacro w-block (layout &body children)
   `(w-block* ,layout () ,@children))

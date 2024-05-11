@@ -77,6 +77,7 @@
       (destroy-widget widget)
       (values))))
 
+(export 'w-button)
 (defmacro w-button (&key ui layout let z-index position-type
                          on-click (enabled t) focus
                          visual (sensor :visual))

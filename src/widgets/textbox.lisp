@@ -1,5 +1,8 @@
 (in-package #:kslgui)
 
+(export '*textbox-cursor-blink-period*)
+(defvar *textbox-cursor-blink-period* 1.5d0)
+
 (defstruct (textbox-widget (:include widget)
                            (:copier nil)
                            (:constructor make-textbox-widget
@@ -14,15 +17,12 @@
   (cursor-visual nil)
   (cursor-index 0 :type fixnum)
   (cursor-x 0.0d0 :type double-float)
-  (cursor-h 0.0d0 :type double-float)
-  (timer 0.0d0 :type double-float))
+  (cursor-h 0.0d0 :type double-float))
 
 (defun textbox-widget-clamped-cursor-index (widget)
   (max 0
     (min (length (label-text (textbox-widget-label widget)))
       (textbox-widget-cursor-index widget))))
-
-(defconstant +textbox-cursor-blink-period+ 1.5d0)
 
 (defun textbox-widget-update-cursor-layout (widget)
   (let ((label (textbox-widget-label widget))
@@ -138,7 +138,6 @@
         (label-text (textbox-widget-label widget))))
     (setf (widget-on-render-begin widget)
       (lambda (ui widget)
-        (incf (textbox-widget-timer widget) (ui-delta-time ui))
         (render-visual ui (textbox-widget-background-visual widget)
                        (coerce (widget-yoga-x widget) 'double-float)
                        (coerce (widget-yoga-y widget) 'double-float)
@@ -151,8 +150,8 @@
                       (widget-height widget)
                       (textbox-widget-label widget))
         (when (and (eq widget (sdet:unobserved (ui-sdet-context ui) (funcall (ui-get-keyboard-focus ui))))
-                   (< (* 0.5d0 +textbox-cursor-blink-period+)
-                      (rem (textbox-widget-timer widget) +textbox-cursor-blink-period+)))
+                   (< (* 0.5d0 *textbox-cursor-blink-period*)
+                      (rem (ui-time ui) *textbox-cursor-blink-period*)))
               (textbox-widget-update-cursor-layout widget)
               (render-visual ui (textbox-widget-cursor-visual widget)
                              (+ (coerce (widget-yoga-x widget) 'double-float)
@@ -168,6 +167,7 @@
       (destroy-widget widget)
       (values))))
 
+(export 'w-textbox)
 (defmacro w-textbox (&key ui layout let z-index position-type
                           on-enter on-changed (enabled t) focus
                           background-visual cursor-visual

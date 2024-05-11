@@ -657,6 +657,7 @@
       (destroy-widget widget)
       (values))))
 
+(export 'w-label)
 (defmacro w-label (&key ui layout let z-index position-type
                         text (text-style #xFFFFFFFF)
                         font (font-size 12.0f0) (font-features '()) (font-variation '())
@@ -682,13 +683,14 @@
 
 ;;; Visual
 
-(defstruct (visual-description-text (:include visual-description)
+(export 'v-text)
+(defstruct (text-visual-description (:include visual-description)
                                     (:copier nil)
-                                    (:constructor visual-text (&key
-                                                               font text style font-size font-features font-variation
-                                                               align-horz align-vert wrap overflow overflow-text
-                                                               &aux
-                                                               (update #'visual-description-text-update-impl))))
+                                    (:constructor v-text (&key
+                                                          font text style font-size font-features font-variation
+                                                          align-horz align-vert wrap overflow overflow-text
+                                                          &aux
+                                                          (update #'text-visual-description-update-impl))))
   font
   (text "" :type string)
   (style #xFFFFFFFF)
@@ -701,48 +703,48 @@
   (overflow :clip)
   (overflow-text " ... " :type string))
 
-(defstruct (visual-state-text (:include visual-state)
+(defstruct (text-visual-state (:include visual-state)
                               (:copier nil)
-                              (:constructor make-visual-state-text (label &aux
-                                                                          (render #'visual-state-text-render-impl)
-                                                                          (destroy #'visual-state-text-destroy-impl))))
+                              (:constructor make-text-visual-state (label &aux
+                                                                          (render #'text-visual-state-render-impl)
+                                                                          (destroy #'text-visual-state-destroy-impl))))
   (label))
 
-(defun visual-description-text-aux (label vdescr)
-  (resize-font-cache (label-font-cache label) (visual-description-text-font-size vdescr))
-  (setf (label-text label) (visual-description-text-text vdescr))
-  (setf (label-align-horz label) (visual-description-text-align-horz vdescr))
-  (setf (label-align-vert label) (visual-description-text-align-vert vdescr))
-  (setf (label-wrap label) (visual-description-text-wrap vdescr))
-  (setf (label-overflow label) (visual-description-text-overflow vdescr))
-  (label-set-font-features label (visual-description-text-font-features vdescr))
-  (label-set-font-variation label (visual-description-text-font-variation vdescr))
-  (label-set-overflow label (visual-description-text-overflow vdescr) (visual-description-text-overflow-text vdescr))
+(defun text-visual-description-aux (label vdescr)
+  (resize-font-cache (label-font-cache label) (text-visual-description-font-size vdescr))
+  (setf (label-text label) (text-visual-description-text vdescr))
+  (setf (label-align-horz label) (text-visual-description-align-horz vdescr))
+  (setf (label-align-vert label) (text-visual-description-align-vert vdescr))
+  (setf (label-wrap label) (text-visual-description-wrap vdescr))
+  (setf (label-overflow label) (text-visual-description-overflow vdescr))
+  (label-set-font-features label (text-visual-description-font-features vdescr))
+  (label-set-font-variation label (text-visual-description-font-variation vdescr))
+  (label-set-overflow label (text-visual-description-overflow vdescr) (text-visual-description-overflow-text vdescr))
   (values))
 
-(defun visual-description-text-create-impl (vdescr)
-  (let ((label (make-label (visual-description-text-font vdescr))))
-    (visual-description-text-aux label vdescr)
-    (setf (label-text-style label) (create-style nil (visual-description-text-style vdescr)))
-    (make-visual-state-text label)))
+(defun text-visual-description-create-impl (vdescr)
+  (let ((label (make-label (text-visual-description-font vdescr))))
+    (text-visual-description-aux label vdescr)
+    (setf (label-text-style label) (create-style nil (text-visual-description-style vdescr)))
+    (make-text-visual-state label)))
 
-(define-visual-description-update visual-description-text-update-impl
-    (vdescr (vstate visual-state-text) :create-fn visual-description-text-create-impl)
-  (let ((label (visual-state-text-label vstate)))
-    (visual-description-text-aux label vdescr)
+(define-visual-description-update text-visual-description-update-impl
+    (vdescr (vstate text-visual-state) :create-fn text-visual-description-create-impl)
+  (let ((label (text-visual-state-label vstate)))
+    (text-visual-description-aux label vdescr)
     (setf (label-text-style label)
       (create-style (label-text-style label)
-                    (visual-description-text-style vdescr)))
+                    (text-visual-description-style vdescr)))
     (setf (label-requires-measure label) :yes))
   (values))
 
-(defun visual-state-text-render-impl (ui vstate x y width height)
+(defun text-visual-state-render-impl (ui vstate x y width height)
   (render-label ui x y
                 (coerce width 'single-float)
                 (coerce height 'single-float)
-                (visual-state-text-label vstate))
+                (text-visual-state-label vstate))
   (values))
 
-(defun visual-state-text-destroy-impl (vstate)
-  (destroy-label (visual-state-text-label vstate))
+(defun text-visual-state-destroy-impl (vstate)
+  (destroy-label (text-visual-state-label vstate))
   (values))
