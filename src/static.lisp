@@ -11,6 +11,7 @@
 (declaim (type (unsigned-byte 3) +active-mouse-button-middle+))
 (declaim (type (unsigned-byte 3) +active-mouse-button-right+))
 
+(export 'key-action)
 (deftype key-action ()
   '(member :enter :backspace :delete
            :up :down :left :right))
@@ -20,6 +21,7 @@
 ;; CYCLE - try navigating from the other side of the widget;
 ;; PASSTHROUGH - focus can be passed to its siblings.
 ;; CONTAIN-IF-ANY - if any widget is found inside - :CONTAIN, otherwise :PASSTHROUGH
+(export 'focus-behavior-as-parent)
 (deftype focus-behavior-as-parent ()
   '(member :contain :contain-if-any :cycle :passthrough))
 
@@ -27,9 +29,11 @@
 ;; :SKIP - skipped,
 ;; :FOCUS - takes focus,
 ;; :TO-CHILDREN - focus may be passed to its children.
+(export 'focus-behavior-as-sibling)
 (deftype focus-behavior-as-sibling ()
   '(member :skip :focus :to-children))
 
+(export 'cursor)
 (deftype cursor ()
   '(member :default :none
            :text
