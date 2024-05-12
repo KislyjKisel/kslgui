@@ -77,6 +77,13 @@
 (defun delta-time-sf (ui)
   (coerce (ui-delta-time ui) 'single-float))
 
+(export 'sdet-context)
+(declaim
+  (inline sdet-context)
+  (ftype (function (ui) (values sdet:context  &optional)) sdet-context))
+(defun sdet-context (ui)
+  (ui-sdet-context ui))
+
 (export 'insert-window)
 (defun insert-window (ui window)
   (multiple-value-bind (windows present)
