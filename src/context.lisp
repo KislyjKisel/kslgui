@@ -3,12 +3,12 @@
 (export '(ui create-ui))
 (defstruct (ui (:copier nil)
                (:constructor create-ui (&key
-                                      (sdet-context (sdet:make-context))
-                                      cursor-renderer
-                                      &aux
-                                      (kb-focus-st (multiple-value-list (sdet:make-state sdet-context nil)))
-                                      (get-keyboard-focus (first kb-focus-st))
-                                      (set-keyboard-focus (second kb-focus-st)))))
+                                        (sdet-context (sdet:make-context))
+                                        cursor-renderer
+                                        &aux
+                                        (kb-focus-st (multiple-value-list (sdet:make-state sdet-context nil)))
+                                        (get-keyboard-focus (first kb-focus-st))
+                                        (set-keyboard-focus (second kb-focus-st)))))
   (windows (make-hash-table) :type hash-table)
   (scroll-sensitivity-x +base-scroll-sensitivity-x+ :type double-float)
   (scroll-sensitivity-y +base-scroll-sensitivity-y+ :type double-float)
@@ -90,12 +90,18 @@
 
 (export 'delete-window)
 (defun delete-window (ui window)
-  (multiple-value-bind (windows present)
-      (gethash (window-layer window) (ui-windows ui))
-    (if present
-        (setf (gethash (window-layer window) (ui-windows ui)) (vector-delete window windows))
-        (error "Window not found in context.")))
-  (values))
+  (let ((layer (window-layer window)))
+    (multiple-value-bind (windows present) (gethash layer (ui-windows ui))
+      (if (not present)
+          (error "Internal: trying to delete a window with unregistered layer.")
+          (let ((count (count window windows)))
+            (if (/= 1 count)
+                (error "Internal: invalid count of the same window: ~a" count)
+                (let ((new-windows (vector-delete window windows)))
+                  (if (= 0 (length new-windows))
+                      (remhash layer (ui-windows ui))
+                      (setf (gethash layer (ui-windows ui)) new-windows)))))))
+    (values)))
 
 (export 'set-window-layer)
 (declaim (ftype (function (ui window (or null layer)) (values &optional)) set-window-layer))
@@ -103,7 +109,7 @@
   (multiple-value-bind (windows present)
       (gethash (window-layer window) (ui-windows ui))
     (unless present
-        (error "Window not found in context."))
+      (error "Window not found in context."))
     (setf (gethash (window-layer window) (ui-windows ui)) (vector-delete window windows))
     (setf (window-layer window) layer)
     (insert-window ui window))
