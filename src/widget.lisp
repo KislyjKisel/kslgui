@@ -175,7 +175,7 @@
                 `(let ((,vdescr-item-computed (lambda () ,(first vdescr))))
                    (sdet:make-effect (ui-sdet-context ,ui)
                      (setf (,widget-visual ,widget)
-                       (update-visual (compute ,vdescr-item-computed) (,widget-visual ,widget)))
+                       (update-visual (sdet:compute ,vdescr-item-computed) (,widget-visual ,widget)))
                      nil))
                 (let ((forms '()))
                   (loop #:for index #:from 0
@@ -184,7 +184,7 @@
                                            `(let ((,vdescr-item-computed (lambda () ,vdescr-item)))
                                               (sdet:make-effect (ui-sdet-context ,ui)
                                                 (setf (aref (,widget-visual ,widget) ,index)
-                                                  (update-visual (compute ,vdescr-item-computed) (aref (,widget-visual ,widget) ,index)))
+                                                  (update-visual (sdet:compute ,vdescr-item-computed) (aref (,widget-visual ,widget) ,index)))
                                                 nil))
                                            forms)))
                   `(progn
