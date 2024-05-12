@@ -23,6 +23,7 @@
   (on-text-input-finished nil :type (or null (function () (values &optional))))
   (key-to-character nil :type (or null (function (t) (or null character))))
   (key-to-action nil :type (or null (function (t) (or null key-action))))
+  (default-font nil :type (or null %blend2d:font-face-core))
   (yoga-config (yogalayout:config-new) :type %yogalayout:config-ref :read-only t)
   (mouse-owner nil :type (or null widget)) ; nil = all widgets recieve events when mouse is over them
   (cursor :default :type cursor)
@@ -83,6 +84,11 @@
   (ftype (function (ui) (values sdet:context  &optional)) sdet-context))
 (defun sdet-context (ui)
   (ui-sdet-context ui))
+
+(export 'set-default-font)
+(defun set-default-font (ui font-face)
+  (setf (ui-default-font ui) font-face)
+  (values))
 
 (export 'insert-window)
 (defun insert-window (ui window)

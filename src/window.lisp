@@ -80,13 +80,13 @@
 
 (export 'compose)
 (defmacro compose (ui window widget-tree)
-  (macroexpand-with-ui ui
-    (alexandria:once-only (window)
+  (alexandria:once-only (ui window)
+    (macroexpand-with-ui ui
       `(progn
-        (sdet:clean-root (window-sdet-root ,*ui*))
+        (sdet:clean-root (window-sdet-root ,window))
         (sdet:with-root (ui-sdet-context ,ui) (window-sdet-root ,window)
           (sdet:make-effect (ui-sdet-context ,ui) ,widget-tree))
         (if (ui-temp-root ,*ui*)
-            (setf (window-widget ,window))
+            (setf (window-widget ,window) (ui-temp-root ,*ui*))
             (error "UI composition didn't produce any widgets."))
         (values)))))

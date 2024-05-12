@@ -591,11 +591,11 @@
                      (setf clip-state :full))))
               (setf (%blend2d:point.x (label-origin label)) (+ x (label-text-line-x-offset text-line)))
               (setf (%blend2d:point.y (label-origin label)) (+ y (label-text-line-y-offset text-line)))
-              (%blend2d:context-fill-glyph-run-d (layer-context (ui-temp-layer ui))
-                                                 (label-origin label)
-                                                 (font-cache-font (label-font-cache label))
-                                                 (%blend2d:glyph-buffer-get-glyph-run (label-text-line-glyph-buffer text-line))))))
-
+              (float-features:with-float-traps-masked t
+                (%blend2d:context-fill-glyph-run-d (layer-context (ui-temp-layer ui))
+                                                   (label-origin label)
+                                                   (font-cache-font (label-font-cache label))
+                                                   (%blend2d:glyph-buffer-get-glyph-run (label-text-line-glyph-buffer text-line)))))))
     (%blend2d:context-restore-clipping (layer-context (ui-temp-layer ui)))
     (autowrap:free clip-rect))
   (values))
@@ -613,6 +613,9 @@
                         wrap
                         overflow
                         overflow-text)
+  (unless font (setf font (ui-default-font ui)))
+  (unless font
+    (error "Label widget recieved NIL font"))
   (let ((widget (make-label-widget (make-label font))))
     (initialize-widget ui widget :z-index z-index :position-type position-type)
     (yogalayout:node-set-node-type (widget-yoga-node widget) yogalayout:+node-type-text+)
@@ -659,11 +662,10 @@
 
 (export 'w-label)
 (defmacro w-label (&key ui layout let z-index position-type
-                        text (text-style #xFFFFFFFF)
+                        (text "") (text-style #xFFFFFFFF)
                         font (font-size 12.0f0) (font-features '()) (font-variation '())
                         (align-horz :start) (align-vert :start)
                         (wrap :whitespace) (overflow :clip) (overflow-text " ... "))
-  (assert (and text font))
   (macroexpand-with-ui ui
     `(w-label-impl ,*ui*
                    :set-layout ,(make-layout-setting-lambda *ui* layout)
