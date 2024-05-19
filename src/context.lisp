@@ -90,6 +90,16 @@
   (setf (ui-default-font ui) font-face)
   (values))
 
+(export 'set-text-input-started-handler)
+(defun set-text-input-started-handler (ui text-input-started-handler)
+  (setf (ui-on-text-input-started ui) text-input-started-handler)
+  (values))
+
+(export 'set-text-input-finished-handler)
+(defun set-text-input-finished-handler (ui text-input-finished-handler)
+  (setf (ui-on-text-input-finished ui) text-input-finished-handler)
+  (values))
+
 (export 'insert-window)
 (defun insert-window (ui window)
   (multiple-value-bind (windows present)

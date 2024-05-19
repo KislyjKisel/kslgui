@@ -45,7 +45,8 @@
     (unless present
       (return-from traverse-ui-with-mouse nil))
     (loop #:for window #:across windows
-          #:do (when (traverse-widget-with-mouse-rec ui (window-widget window) x y f)
+          #:do (when (and (window-widget window)
+                          (traverse-widget-with-mouse-rec ui (window-widget window) x y f))
                      (return-from traverse-ui-with-mouse t))))
   nil)
 
