@@ -1,6 +1,8 @@
 (in-package #:kslgui)
 
 (export '(ui create-ui))
+;; NOTE: sometimes changing UI may cause strange errors in compiler.
+;; Solution: clear fasls (or try fiddling with files loaded before this file (esp. visual))
 (defstruct (ui (:copier nil)
                (:constructor create-ui (&key
                                         (sdet-context (sdet:make-context))
@@ -24,7 +26,7 @@
   (on-text-input-finished nil :type (or null (function () (values &optional))))
   (key-to-character nil :type (or null (function (t) (or null character))))
   (key-to-action nil :type (or null (function (t) (or null key-action))))
-  (default-font nil :type (or null %blend2d:font-face-core))
+  (fonts (make-hash-table) :type hash-table)
   (yoga-config (yogalayout:config-new) :type %yogalayout:config-ref :read-only t)
   (mouse-owner nil :type (or null widget)) ; nil = all widgets recieve events when mouse is over them
   (cursor :default :type cursor)
@@ -86,9 +88,24 @@
 (defun sdet-context (ui)
   (ui-sdet-context ui))
 
-(export 'set-default-font)
-(defun set-default-font (ui font-face)
-  (setf (ui-default-font ui) font-face)
+(export 'set-font)
+(declaim (ftype (function (ui symbol %blend2d:font-face-core) (values &optional)) set-font))
+(defun set-font (ui key font-face)
+  (setf (gethash key (ui-fonts ui)) font-face)
+  (values))
+
+(export 'remove-font)
+(declaim (ftype (function (ui symbol) (values %blend2d:font-face-core boolean &optional)) remove-font))
+(defun remove-font (ui key)
+  (multiple-value-bind (font present)
+      (gethash key (ui-fonts ui))
+    (remhash key (ui-fonts ui))
+    (values font present)))
+
+(export 'clear-fonts)
+(declaim (ftype (function (ui) (values &optional)) clear-fonts))
+(defun clear-fonts (ui)
+  (clrhash (ui-fonts ui))
   (values))
 
 (export 'set-text-input-started-handler)

@@ -5,7 +5,6 @@
 
 (defstruct (font-cache (:copier nil))
   (state :uninitialized :type (member :uninitialized :initialized :destroyed))
-  (face)
   (font)
   (metrics)
   (feature-settings)
@@ -14,10 +13,10 @@
 (defun font-cache-initialized-p (cache)
   (eq (font-cache-state cache) :initialized))
 
-(defun resize-font-cache (cache new-size)
+(defun update-font-cache (cache font-face new-size)
   (%blend2d:font-reset (font-cache-font cache))
   (%blend2d:font-create-from-face-with-settings (font-cache-font cache)
-                                                (font-cache-face cache)
+                                                font-face
                                                 (coerce new-size 'single-float)
                                                 (font-cache-feature-settings cache)
                                                 (font-cache-variation-settings cache))
@@ -25,7 +24,7 @@
   (setf (font-cache-state cache) :initialized)
   (values))
 
-(defun make-font-cache* (font-face)
+(defun make-font-cache* ()
   (let ((metrics (autowrap:alloc '%blend2d:font-metrics))
         (font (autowrap:alloc '%blend2d:font-core))
         (feature-settings (autowrap:alloc '%blend2d:font-feature-settings-core))
@@ -33,8 +32,7 @@
     (%blend2d:font-init font)
     (%blend2d:font-feature-settings-init feature-settings)
     (%blend2d:font-variation-settings-init variation-settings)
-    (make-font-cache :face font-face
-                     :font font
+    (make-font-cache :font font
                      :metrics metrics
                      :feature-settings feature-settings
                      :variation-settings variation-settings)))
@@ -70,7 +68,7 @@
 
 (deftype text-alignment () '(member :start :center :end))
 
-(defstruct (label (:copier nil) (:constructor make-label*))
+(defstruct (label (:copier nil) (:constructor make-label))
   (font-cache)
   (text "")
   (text-style)
@@ -396,14 +394,14 @@
         (autowrap:free (label-overflow-text-gb label))))
 
 (assert (= (cffi:foreign-type-size :int) 4)) ; checks int = sint32
-(defun make-label (font-face)
+(defun make-label* ()
   (let* ((bound (autowrap:calloc :pointer))
-         (label (make-label* :font-cache (make-font-cache* font-face)
-                             :id (prog1 *label-counter* (incf *label-counter*))
-                             :measure-func-ffi-cif (autowrap:calloc 'autowrap.libffi:ffi-cif)
-                             :measure-func-ffi-args (autowrap:calloc :pointer 5)
-                             ;; `(autowrap:sizeof 'autowrap.libffi:ffi-closure)` returns 48 for me, causing crashes
-                             :measure-func-ffi-closure (autowrap.libffi:ffi-closure-alloc 56 (autowrap:ptr bound)))))
+         (label (make-label :font-cache (make-font-cache*)
+                            :id (prog1 *label-counter* (incf *label-counter*))
+                            :measure-func-ffi-cif (autowrap:calloc 'autowrap.libffi:ffi-cif)
+                            :measure-func-ffi-args (autowrap:calloc :pointer 5)
+                            ;; `(autowrap:sizeof 'autowrap.libffi:ffi-closure)` returns 48 for me, causing crashes
+                            :measure-func-ffi-closure (autowrap.libffi:ffi-closure-alloc 56 (autowrap:ptr bound)))))
     (setf (autowrap:c-aref (label-measure-func-ffi-args label) 0 :pointer) autowrap.libffi:ffi-type-pointer)
     (setf (autowrap:c-aref (label-measure-func-ffi-args label) 1 :pointer) autowrap.libffi:ffi-type-float)
     (setf (autowrap:c-aref (label-measure-func-ffi-args label) 2 :pointer) autowrap.libffi:ffi-type-sint32) ; assumes int = sint32
@@ -468,17 +466,23 @@
                             &key
                             widget (mark-dirty nil)
                             text text-style
-                            font-size font-features font-variation
+                            font font-size font-features font-variation
                             align-horz align-vert
                             wrap
                             overflow
                             overflow-text)
-  (let ((font-size-computed (init-computed-prop widget font-size)))
+  (let ((font-computed (init-computed-prop widget font))
+        (font-size-computed (init-computed-prop widget font-size)))
     (sdet:make-effect (ui-sdet-context ui)
       (when (eq (font-cache-state (label-font-cache label)) :destroyed)
-            (error "Font cache was destroyed before running its resizing effect."))
+            (error "Font cache was destroyed before running its updating effect."))
       (setf (label-requires-measure label) :yes)
-      (resize-font-cache (label-font-cache label) (sdet:compute font-size-computed))
+      (let ((font-key (sdet:compute font-computed)))
+        (multiple-value-bind (font-face present) (gethash font-key (ui-fonts ui))
+          (unless present (error "Font not found: ~A" font-key))
+          (update-font-cache (label-font-cache label)
+                             font-face
+                             (sdet:compute font-size-computed))))
       nil))
   (when wrap
         (let ((wrap-computed (init-computed-prop widget wrap)))
@@ -613,10 +617,7 @@
                         wrap
                         overflow
                         overflow-text)
-  (unless font (setf font (ui-default-font ui)))
-  (unless font
-    (error "Label widget recieved NIL font"))
-  (let ((widget (make-label-widget (make-label font))))
+  (let ((widget (make-label-widget (make-label*))))
     (initialize-widget ui widget :z-index z-index :position-type position-type)
     (yogalayout:node-set-node-type (widget-yoga-node widget) yogalayout:+node-type-text+)
     (yogalayout:node-set-measure-func (widget-yoga-node widget) (label-measure-func-pointer (label-widget-label widget)))
@@ -637,6 +638,7 @@
                       :mark-dirty t
                       :text text
                       :text-style text-style
+                      :font font
                       :font-size font-size
                       :font-features font-features
                       :font-variation font-variation
@@ -673,7 +675,7 @@
                    :position-type ,(make-computed-prop position-type :let let)
                    :text ,(make-computed-prop text :let let)
                    :text-style ,(make-computed-prop text-style :let let)
-                   :font ,font
+                   :font ,(make-computed-prop font :let let)
                    :font-size ,(make-computed-prop font-size :let let)
                    :font-features ,(make-computed-prop font-features :let let)
                    :font-variation ,(make-computed-prop font-variation :let let)
@@ -693,7 +695,7 @@
                                                           align-horz align-vert wrap overflow overflow-text
                                                           &aux
                                                           (update #'text-visual-description-update-impl))))
-  font
+  (font nil :type symbol)
   (text "" :type string)
   (style #xFFFFFFFF)
   (font-size 12.0f0 :type real)
@@ -707,13 +709,16 @@
 
 (defstruct (text-visual-state (:include visual-state)
                               (:copier nil)
-                              (:constructor make-text-visual-state (label &aux
+                              (:constructor make-text-visual-state (label font font-size
+                                                                          &aux
                                                                           (render #'text-visual-state-render-impl)
                                                                           (destroy #'text-visual-state-destroy-impl))))
-  (label))
+  (label (unreachable) :type label)
+  (font (unreachable) :type symbol)
+  (font-size (unreachable) :type single-float)
+  (font-cache-dirty t :type boolean))
 
 (defun text-visual-description-aux (label vdescr)
-  (resize-font-cache (label-font-cache label) (text-visual-description-font-size vdescr))
   (setf (label-text label) (text-visual-description-text vdescr))
   (setf (label-align-horz label) (text-visual-description-align-horz vdescr))
   (setf (label-align-vert label) (text-visual-description-align-vert vdescr))
@@ -725,15 +730,20 @@
   (values))
 
 (defun text-visual-description-create-impl (vdescr)
-  (let ((label (make-label (text-visual-description-font vdescr))))
+  (let ((label (make-label*)))
     (text-visual-description-aux label vdescr)
     (setf (label-text-style label) (create-style nil (text-visual-description-style vdescr)))
-    (make-text-visual-state label)))
+    (make-text-visual-state label
+                            (text-visual-description-font vdescr)
+                            (coerce (text-visual-description-font-size vdescr) 'single-float))))
 
 (define-visual-description-update text-visual-description-update-impl
     (vdescr (vstate text-visual-state) :create-fn text-visual-description-create-impl)
   (let ((label (text-visual-state-label vstate)))
     (text-visual-description-aux label vdescr)
+    (setf (text-visual-state-font-cache-dirty vstate) t)
+    (setf (text-visual-state-font vstate) (text-visual-description-font vdescr))
+    (setf (text-visual-state-font-size vstate) (coerce (text-visual-description-font-size vdescr) 'single-float))
     (setf (label-text-style label)
       (create-style (label-text-style label)
                     (text-visual-description-style vdescr)))
@@ -741,6 +751,14 @@
   (values))
 
 (defun text-visual-state-render-impl (ui vstate x y width height)
+  (when (text-visual-state-font-cache-dirty vstate)
+        (setf (text-visual-state-font-cache-dirty vstate) nil)
+        (multiple-value-bind (font-face present) (gethash (text-visual-state-font vstate) (ui-fonts ui))
+          (unless present
+            (error "Font not found: ~A" (text-visual-state-font vstate)))
+          (update-font-cache (label-font-cache (text-visual-state-label vstate))
+                             font-face
+                             (text-visual-state-font-size vstate))))
   (render-label ui x y
                 (coerce width 'single-float)
                 (coerce height 'single-float)
