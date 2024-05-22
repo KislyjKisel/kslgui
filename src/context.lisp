@@ -9,6 +9,7 @@
                                         (kb-focus-st (multiple-value-list (sdet:make-state sdet-context nil)))
                                         (get-keyboard-focus (first kb-focus-st))
                                         (set-keyboard-focus (second kb-focus-st)))))
+  (values (make-hash-table) :type hash-table)
   (windows (make-hash-table) :type hash-table)
   (scroll-sensitivity-x +base-scroll-sensitivity-x+ :type double-float)
   (scroll-sensitivity-y +base-scroll-sensitivity-y+ :type double-float)
@@ -212,3 +213,56 @@
        (multiple-value-prog1
            (trivial-macroexpand-all:macroexpand-all ,(first body))
          (setf *ui* ,previous-ui)))))
+
+(export 'get-value)
+(declaim
+  (inline get-value)
+  (ftype (function (ui symbol) (values t boolean &optional)) get-value))
+(defun get-value (ui key)
+  "Finds a value in the context's hash-table.
+  Returns the value or NIL and a boolean indicating whether the value was found."
+  (multiple-value-bind (value present-p)
+      (gethash key (ui-values ui))
+    (values value (not (null present-p)))))
+
+(export 'get-value!)
+(declaim
+  (inline get-value!)
+  (ftype (function (ui symbol) (values t &optional)) get-value!))
+(defun get-value! (ui key)
+  "Finds a value in the context's hash-table.
+  Invokes ERROR if the key wasn't found."
+  (multiple-value-bind (value present-p)
+      (gethash key (ui-values ui))
+    (if present-p
+        value
+        (error "Context doesn't provide a value with key '~a'" key))))
+
+(export 'with-values)
+;;; TODO: use UNWIND-PROTECT
+(defmacro with-values (ui key-value-pairs &body body)
+  (labels ((rec (ctx-sym kvps body)
+                (if (null kvps)
+                    `(progn ,@body)
+                    (let ((key (caar kvps))
+                          (value (cadar kvps)))
+                      (alexandria:with-gensyms (key-sym old-value old-value-p)
+                        `(let ((,key-sym ,key))
+                           (multiple-value-bind (,old-value ,old-value-p)
+                               (get ,ctx-sym ,key-sym)
+                             (alexandria:multiple-value-prog2
+                               (setf (gethash ,key-sym (ui-values ,ctx-sym)) ,value)
+                               ,(rec ctx-sym (cdr kvps) body)
+                               (if ,old-value-p
+                                   (setf (gethash ,key-sym (ui-values ,ctx-sym)) ,old-value)
+                                   (remhash ,key-sym (ui-values ,ctx-sym)))))))))))
+    (let ((ctx-sym (gensym)))
+      `(let ((,ctx-sym ,ui))
+         ,(rec ctx-sym key-value-pairs body)))))
+
+(export 'set-value)
+(declaim
+  (inline set-value)
+  (ftype (function (ui symbol t) (values t &optional)) set-value))
+(defun set-value (ui key value)
+  (setf (gethash key (ui-values ui)) value))
