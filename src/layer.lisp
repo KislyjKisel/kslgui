@@ -1,6 +1,6 @@
 (in-package #:kslgui)
 
-(export '(layer create-layer layer-context))
+(export '(layer create-layer layer-context layer-dirty))
 (defstruct (layer (:copier nil)
                   (:constructor create-layer (image
                                             &key (cci nil)
@@ -10,7 +10,8 @@
                                                                               image
                                                                               (or cci (cffi:null-pointer)))
                                                     context)))))
-  (context (unreachable) :type %blend2d:context-core :read-only t))
+  (context (unreachable) :type %blend2d:context-core :read-only t)
+  (dirty t :type boolean))
 
 (export 'destroy-layer)
 (declaim (ftype (function (layer) (values &optional)) destroy-layer))
@@ -27,6 +28,7 @@
                    (values %blend2d:image-core &optional))
          update-layer))
 (defun update-layer (layer f &key cci)
+  (setf (layer-dirty layer) t)
   (%blend2d:context-reset (layer-context layer))
   (let ((new-image (funcall f)))
     (%blend2d:context-begin (layer-context layer)

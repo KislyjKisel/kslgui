@@ -137,28 +137,30 @@
   (let ((clip-rect (alloc-blend2d-rect ui))
         (translate-point (alloc-blend2d-point ui)))
     (maphash (lambda (layer windows)
-               (when clear
-                     (%blend2d:context-clear-all (layer-context layer)))
-               (loop #:for window #:across windows
-                     #:do
-                     (render-window ui window clip-rect translate-point))
-               (when (and (ui-cursor-visible ui)
-                          (not (eq :none (ui-cursor ui)))
-                          (eq layer (ui-cursor-layer ui)))
-                     (render-cursor (ui-cursor-renderer ui)
-                                    (layer-context (ui-cursor-layer ui))
-                                    (ui-cursor ui)
-                                    (coerce (ui-cursor-x ui) 'double-float)
-                                    (coerce (ui-cursor-y ui) 'double-float)))
-               (unless defer-flush
-                 (%blend2d:context-flush (layer-context layer)
-                                         (uint32->int32 %blend2d:+context-flush-sync+))))
+               (when (layer-dirty layer)
+                     (when clear
+                           (%blend2d:context-clear-all (layer-context layer)))
+                     (loop #:for window #:across windows
+                           #:do
+                           (render-window ui window clip-rect translate-point))
+                     (when (and (ui-cursor-visible ui)
+                                (not (eq :none (ui-cursor ui)))
+                                (eq layer (ui-cursor-layer ui)))
+                           (render-cursor (ui-cursor-renderer ui)
+                                          (layer-context (ui-cursor-layer ui))
+                                          (ui-cursor ui)
+                                          (coerce (ui-cursor-x ui) 'double-float)
+                                          (coerce (ui-cursor-y ui) 'double-float)))
+                     (unless defer-flush
+                       (%blend2d:context-flush (layer-context layer)
+                                               (uint32->int32 %blend2d:+context-flush-sync+)))))
              (ui-windows ui))
     (when defer-flush
           (alexandria:maphash-keys
             (lambda (layer)
-              (%blend2d:context-flush (layer-context layer)
-                                      (uint32->int32 %blend2d:+context-flush-sync+)))
+              (when (layer-dirty layer)
+                    (%blend2d:context-flush (layer-context layer)
+                                            (uint32->int32 %blend2d:+context-flush-sync+))))
             (ui-windows ui)))
     (free-blend2d-point ui translate-point)
     (free-blend2d-rect ui clip-rect))

@@ -90,3 +90,14 @@
             (setf (window-widget ,window) (ui-temp-root ,*ui*))
             (error "UI composition didn't produce any widgets."))
         (values)))))
+
+(declaim (ftype (function (ui widget) (values (or null layer) &optional)) widget-layer))
+(defun widget-layer (ui widget)
+  (loop #:while (widget-parent widget)
+        #:do (setf widget (the 'widget (widget-parent widget))))
+  (maphash (lambda (layer windows)
+             (loop #:for window #:across windows
+                   #:do (if (eq widget (window-widget window))
+                            (return-from widget-layer layer))))
+           (ui-windows ui))
+  nil)
