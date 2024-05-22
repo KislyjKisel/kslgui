@@ -148,10 +148,7 @@
 (export 'make-computed-prop)
 (defun make-computed-prop (val &key let)
   (cond
-   ((and (atom val)
-         (or (not (symbolp val))
-             (null val)
-             (keywordp val))) val)
+   ((constantp val) val)
    (t (let ((widget-sym (or let (gensym))))
         `(lambda (,widget-sym)
            (declare (ignorable ,widget-sym))
