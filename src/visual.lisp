@@ -20,7 +20,7 @@
 (defstruct (shape-visual-description (:include visual-description) (:copier nil))
   (fill-style)
   (border-style)
-  (border-width nil :type (or null single-float)))
+  (border-width nil :type (or null real)))
 
 (export 'shape-visual-state)
 (defstruct (shape-visual-state (:include visual-state) (:copier nil))

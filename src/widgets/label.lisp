@@ -18,7 +18,7 @@
   (%blend2d:font-reset (font-cache-font cache))
   (%blend2d:font-create-from-face-with-settings (font-cache-font cache)
                                                 (font-cache-face cache)
-                                                new-size
+                                                (coerce new-size 'single-float)
                                                 (font-cache-feature-settings cache)
                                                 (font-cache-variation-settings cache))
   (%blend2d:font-get-metrics (font-cache-font cache) (font-cache-metrics cache))
@@ -696,7 +696,7 @@
   font
   (text "" :type string)
   (style #xFFFFFFFF)
-  (font-size 12.0f0 :type single-float)
+  (font-size 12.0f0 :type real)
   (font-features '())
   (font-variation '())
   (align-horz :center)
