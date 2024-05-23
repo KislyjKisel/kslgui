@@ -48,8 +48,6 @@
             (setf (widget-rendering-order-cache widget) (make-array 0 :adjustable t :fill-pointer 0)))
         (widget-rendering-order-changed widget))
       nil)
-    ; (unless (ui-temp-first-widget ui)
-    ;   (setf (ui-temp-first-widget ui) widget))
     (multiple-value-bind (subscribe notify) (sdet:make-notifier (ui-sdet-context ui))
       (setf (widget-subscribe-layout-changed widget) subscribe)
       (setf (widget-notify-layout-changed widget) notify))
@@ -102,13 +100,6 @@
   (values))
 
 (alexandria:define-constant +yoga-style-prop-setter-prefix+ "NODE-STYLE-SET-" :test #'string=)
-
-; (defparameter *layout-props* (make-array 0 :fill-pointer 0 :adjustable t))
-; (do-external-symbols (s "YOGALAYOUT")
-;   (unless (eq s 'yogalayout:node-style-set-position-type)
-;     (let ((s (string s)))
-;       (when (uiop:string-prefix-p +yoga-style-prop-setter-prefix+ s)
-;             (vector-push-extend (subseq s (length +yoga-style-prop-setter-prefix+)) *layout-props*)))))
 
 (export 'make-layout-setting-code)
 (defun make-layout-setting-code (ui layout widget-sym)
