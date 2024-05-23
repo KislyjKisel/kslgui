@@ -44,7 +44,7 @@
                           on-changed on-enter
                           background-visual
                           cursor-visual)
-  (let ((widget (make-textbox-widget (make-label font) on-changed on-enter)))
+  (let ((widget (make-textbox-widget (make-label*) on-changed on-enter)))
     (initialize-widget ui widget :z-index z-index :position-type position-type :enabled enabled)
     (when set-layout (funcall set-layout widget))
     (when focus (set-keyboard-focus ui widget))
@@ -56,6 +56,7 @@
                       :mark-dirty nil
                       :text text
                       :text-style text-style
+                      :font font
                       :font-size font-size
                       :align-horz :start
                       :align-vert :center
@@ -182,7 +183,7 @@
                      :enabled ,(make-computed-prop enabled :let let)
                      :focus ,focus
                      :text ,(make-computed-prop text :let let)
-                     :font ,font
+                     :font ,(make-computed-prop font :let let)
                      :text-style ,(make-computed-prop text-style :let let)
                      :font-size ,(make-computed-prop font-size :let let)
                      :background-visual ,(make-visual-prop *ui* background-visual :let let :widget-visual 'textbox-widget-background-visual)
