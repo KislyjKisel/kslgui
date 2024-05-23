@@ -221,15 +221,22 @@
                 Stores a form.
                 Provided by MACROEXPAND-WITH-UI, for example in COMPOSE and property expansions."))
 
-(export 'macroexpand-with-ui)
-(defmacro macroexpand-with-ui (ui &body body)
-  (assert (= 1 (length body)))
+(export 'macroexpand-with-ui*)
+(defmacro macroexpand-with-ui* (ui &body body)
   (alexandria:with-gensyms (previous-ui)
     `(let ((,previous-ui *ui*))
        (setf *ui* (or ,ui ,previous-ui))
        (multiple-value-prog1
-           (trivial-macroexpand-all:macroexpand-all ,(first body))
+           (trivial-macroexpand-all:macroexpand-all (progn ,@body))
          (setf *ui* ,previous-ui)))))
+
+(export 'macroexpand-with-ui)
+(defmacro macroexpand-with-ui (ui &body body)
+  (let ((previous-ui *ui*))
+    (setf *ui* (or ui previous-ui))
+    (multiple-value-prog1
+        (trivial-macroexpand-all:macroexpand-all `(progn ,@body))
+      (setf *ui* previous-ui))))
 
 (export 'get-value)
 (declaim

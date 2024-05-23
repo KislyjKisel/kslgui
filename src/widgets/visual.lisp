@@ -42,7 +42,7 @@
                                  (focus-behavior-as-parent-x :passthrough)
                                  (focus-behavior-as-parent-y :passthrough))
                            &body children)
-  (macroexpand-with-ui ui
+  (macroexpand-with-ui* ui
     `(w-visual-impl ,*ui*
                     :set-layout ,(make-layout-setting-lambda *ui* layout)
                     :make-children ,(make-children-making-lambda *ui* children :let let)

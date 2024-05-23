@@ -81,7 +81,7 @@
 (export 'compose)
 (defmacro compose (ui window widget-tree)
   (alexandria:once-only (ui window)
-    (macroexpand-with-ui ui
+    (macroexpand-with-ui* ui
       `(progn
         (sdet:clean-root (window-sdet-root ,window))
         (sdet:with-root (ui-sdet-context ,ui) (window-sdet-root ,window)

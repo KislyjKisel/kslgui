@@ -377,7 +377,7 @@
                                  bar-visual
                                  thumb-visual (thumb-sensor :visual))
                            &body children)
-  (macroexpand-with-ui ui
+  (macroexpand-with-ui* ui
     `(w-scroll-impl ,*ui*
                     :set-layout ,(make-layout-setting-lambda *ui* layout)
                     :make-children ,(make-children-making-lambda *ui* children :let let)

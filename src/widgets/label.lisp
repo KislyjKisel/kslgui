@@ -668,7 +668,7 @@
                         font (font-size 12.0f0) (font-features '()) (font-variation '())
                         (align-horz :start) (align-vert :start)
                         (wrap :whitespace) (overflow :clip) (overflow-text " ... "))
-  (macroexpand-with-ui ui
+  (macroexpand-with-ui* ui
     `(w-label-impl ,*ui*
                    :set-layout ,(make-layout-setting-lambda *ui* layout)
                    :z-index ,(make-computed-prop z-index :let let)

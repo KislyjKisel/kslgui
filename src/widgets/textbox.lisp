@@ -172,7 +172,7 @@
                           on-enter on-changed (enabled t) focus
                           background-visual cursor-visual
                           text font font-size text-style)
-  (macroexpand-with-ui ui
+  (macroexpand-with-ui* ui
     `(w-textbox-impl ,*ui*
                      :set-layout ,(make-layout-setting-lambda *ui* layout)
                      :z-index ,(make-computed-prop z-index :let let)

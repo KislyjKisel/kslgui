@@ -81,7 +81,7 @@
 (defmacro w-button (&key ui layout let z-index position-type
                          on-click (enabled t) focus
                          visual (sensor :visual))
-  (macroexpand-with-ui ui
+  (macroexpand-with-ui* ui
     `(w-button-impl ,*ui*
                     :set-layout ,(make-layout-setting-lambda *ui* layout)
                     :z-index ,(make-computed-prop z-index :let let)
