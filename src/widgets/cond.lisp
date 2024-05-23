@@ -1,23 +1,21 @@
 (in-package #:kslgui)
 
 (defun w-cond-impl (ui branch-index-computed children-variants)
-  (let (first-child)
-    (sdet:make-effect (ui-sdet-context ui)
-      (let ((previous-context-first-widget (ui-temp-first-widget ui))
-            (rerunning (not (null first-child))))
-        (setf (ui-temp-first-widget ui) nil)
-        (when rerunning ; Executed outside composition context - needs to set up it itself
-              (setf (ui-temp-sibling-index ui) (widget-yoga-index first-child))
-              (setf (ui-temp-parent ui) (widget-parent first-child)))
-        (prog1
-            (funcall (svref children-variants (sdet:compute branch-index-computed)))
-          (setf first-child (ui-temp-first-widget ui))
-          (when previous-context-first-widget
-                (setf (ui-temp-first-widget ui) previous-context-first-widget))
-          (when rerunning ; Note: FIRST-CHILD may be not nil there even on the first run
-                ;; Cleaning set up context just in case. (why not return previous values? just useless?)
-                (setf (ui-temp-sibling-index ui) 0)
-                (setf (ui-temp-parent ui) nil)))))))
+  (sdet:make-effect (ui-sdet-context ui)
+    (let ((placeholder (insert-placeholder ui)))
+      (sdet:make-effect (ui-sdet-context ui)
+        (let ((previous-parent (ui-temp-parent ui))
+              (previous-sibling-index (ui-temp-sibling-index  ui)))
+          (setf (ui-temp-sibling-index ui) (placeholder-index placeholder))
+          (setf (ui-temp-parent ui) (placeholder-parent placeholder))
+          (prog1
+              (funcall (svref children-variants (sdet:compute branch-index-computed)))
+            (setf (ui-temp-sibling-index ui) previous-sibling-index)
+            (setf (ui-temp-parent ui) previous-parent)
+            )))
+      (lambda ()
+        (delete-placeholder placeholder))))
+  (values))
 
 ; todo: trivia / match variant (match (*computed*) ((a . b) (button)) (nil (label)))
 (export 'w-cond)

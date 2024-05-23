@@ -35,8 +35,10 @@
 (defun directional-navigation-traverse-children (ui center-x center-y radius-x radius-y
                                                     key-action criteria-state parent skipped-widget)
   (loop #:for child #:across (widget-children parent) #:do
-        (unless (or (eq child skipped-widget) (sdet:unobserved (ui-sdet-context ui)
-                                                (not (sdet:compute (widget-enabled-computed child)))))
+        (unless (or (placeholderp child)
+                    (eq child skipped-widget)
+                    (sdet:unobserved (ui-sdet-context ui)
+                      (not (sdet:compute (widget-enabled-computed child)))))
           (ecase (if (functionp (widget-focus-behavior-as-sibling child))
                      (funcall (widget-focus-behavior-as-sibling child) ui child)
                      (widget-focus-behavior-as-sibling child))

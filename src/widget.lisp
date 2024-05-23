@@ -1,5 +1,24 @@
 (in-package #:kslgui)
 
+(export 'insert-placeholder)
+(declaim (ftype (function (ui) (values placeholder &optional)) insert-placeholder))
+(defun insert-placeholder (ui)
+  (let ((parent (ui-temp-parent ui))
+        (initial-index (ui-temp-sibling-index ui)))
+    (unless parent
+      (error "Can't insert placeholder as root"))
+    (let ((placeholder (make-placeholder parent initial-index)))
+      (vector-insert (widget-children parent) placeholder initial-index)
+      placeholder)))
+
+(export 'delete-placeholder)
+(declaim (ftype (function (placeholder) (values &optional)) delete-placeholder))
+(defun delete-placeholder (placeholder)
+  (let ((parent (placeholder-parent placeholder)))
+    (setf (widget-children parent)
+      (vector-delete placeholder (widget-children parent))))
+  (values))
+
 (export 'initialize-widget)
 (declaim (ftype (function (ui widget &key (:z-index t)
                               (:position-type t)
@@ -29,8 +48,8 @@
             (setf (widget-rendering-order-cache widget) (make-array 0 :adjustable t :fill-pointer 0)))
         (widget-rendering-order-changed widget))
       nil)
-    (unless (ui-temp-first-widget ui)
-      (setf (ui-temp-first-widget ui) widget))
+    ; (unless (ui-temp-first-widget ui)
+    ;   (setf (ui-temp-first-widget ui) widget))
     (multiple-value-bind (subscribe notify) (sdet:make-notifier (ui-sdet-context ui))
       (setf (widget-subscribe-layout-changed widget) subscribe)
       (setf (widget-notify-layout-changed widget) notify))
@@ -43,7 +62,10 @@
     (if parent
         (progn
          (dotimes (offset (- (length (widget-children parent)) (widget-yoga-index widget)))
-           (incf (widget-yoga-index (aref (widget-children parent) (+ (widget-yoga-index widget) offset)))))
+           (let ((child (aref (widget-children parent) (+ (widget-yoga-index widget) offset))))
+             (etypecase child
+               (placeholder (incf (placeholder-index child)))
+               (widget (incf (widget-yoga-index child))))))
          (yogalayout:node-insert-child (widget-yoga-node parent) yoga-node (widget-yoga-index widget))
          (vector-insert (widget-children parent) widget (widget-yoga-index widget))
          (incf (ui-temp-sibling-index ui))
@@ -59,7 +81,10 @@
     (when parent
           (setf (widget-children parent) (vector-delete widget (widget-children parent)))
           (dotimes (offset (- (length (widget-children parent)) (widget-yoga-index widget)))
-            (decf (widget-yoga-index (aref (widget-children parent) (+ (widget-yoga-index widget) offset)))))
+            (let ((child (aref (widget-children parent) (+ (widget-yoga-index widget) offset))))
+              (etypecase child
+                (placeholder (decf (placeholder-index child)))
+                (widget (decf (widget-yoga-index child))))))
           (yogalayout:node-remove-child (widget-yoga-node parent) (widget-yoga-node widget))
           (widget-children-rendering-order-changed parent)))
   (yogalayout:node-reset (widget-yoga-node widget))

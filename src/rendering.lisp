@@ -19,42 +19,43 @@
 (defun collect-widget-rendering-order (ui order tree-index widget)
   (loop #:for child #:across (widget-children widget)
         #:do
-        (incf tree-index)
-        (multiple-value-bind (z-index position-type)
-            (sdet:unobserved (ui-sdet-context ui)
-              (values (or (sdet:compute (widget-z-index-computed child)) :auto)
-                (or (sdet:compute (widget-position-type-computed child)) yogalayout:+position-type-static+)))
-          (cond
-           ((and (not (widget-force-isolated-rendering child))
-                 (= yogalayout:+position-type-static+ position-type))
-             (vector-push-extend (make-rendering-order-entry :step 1
-                                                             :z 0
-                                                             :tree-index tree-index
-                                                             :widget child)
-                                 order)
-             (setf tree-index (collect-widget-rendering-order ui order tree-index child)))
-           ((and (not (widget-force-isolated-rendering child))
-                 (eq z-index :auto))
-             (vector-push-extend (make-rendering-order-entry :step 3
-                                                             :z 0
-                                                             :tree-index tree-index
-                                                             :widget child)
-                                 order)
-             (setf tree-index (collect-widget-rendering-order ui order tree-index child)))
-           ((or (and (widget-force-isolated-rendering child) (eq z-index :auto))
-                (= z-index 0))
-             (vector-push-extend (make-rendering-order-entry :step 3
-                                                             :z 0
-                                                             :tree-index tree-index
-                                                             :widget child)
-                                 order)
-             (update-widget-rendering-order-cache ui child))
-           (t (vector-push-extend (make-rendering-order-entry :step (if (< z-index 0) 2 4)
-                                                              :z z-index
-                                                              :tree-index tree-index
-                                                              :widget child)
-                                  order)
-              (update-widget-rendering-order-cache ui child)))))
+        (unless (placeholderp child)
+          (incf tree-index)
+          (multiple-value-bind (z-index position-type)
+              (sdet:unobserved (ui-sdet-context ui)
+                (values (or (sdet:compute (widget-z-index-computed child)) :auto)
+                  (or (sdet:compute (widget-position-type-computed child)) yogalayout:+position-type-static+)))
+            (cond
+             ((and (not (widget-force-isolated-rendering child))
+                   (= yogalayout:+position-type-static+ position-type))
+               (vector-push-extend (make-rendering-order-entry :step 1
+                                                               :z 0
+                                                               :tree-index tree-index
+                                                               :widget child)
+                                   order)
+               (setf tree-index (collect-widget-rendering-order ui order tree-index child)))
+             ((and (not (widget-force-isolated-rendering child))
+                   (eq z-index :auto))
+               (vector-push-extend (make-rendering-order-entry :step 3
+                                                               :z 0
+                                                               :tree-index tree-index
+                                                               :widget child)
+                                   order)
+               (setf tree-index (collect-widget-rendering-order ui order tree-index child)))
+             ((or (and (widget-force-isolated-rendering child) (eq z-index :auto))
+                  (= z-index 0))
+               (vector-push-extend (make-rendering-order-entry :step 3
+                                                               :z 0
+                                                               :tree-index tree-index
+                                                               :widget child)
+                                   order)
+               (update-widget-rendering-order-cache ui child))
+             (t (vector-push-extend (make-rendering-order-entry :step (if (< z-index 0) 2 4)
+                                                                :z z-index
+                                                                :tree-index tree-index
+                                                                :widget child)
+                                    order)
+                (update-widget-rendering-order-cache ui child))))))
   tree-index)
 
 (defun update-widget-rendering-order-cache (ui widget)

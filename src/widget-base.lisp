@@ -8,7 +8,7 @@
 (export '(widget make-widget))
 (defstruct (widget (:copier nil) (:print-function widget-print-function))
   (parent nil :type (or null widget))
-  (children (make-array 0 :fill-pointer 0 :adjustable t) :type (vector widget))
+  (children (make-array 0 :fill-pointer 0 :adjustable t) :type (vector (or placeholder widget)))
   (yoga-node nil)
   (yoga-index 0 :type fixnum)
   (yoga-x 0.0 :type single-float)
@@ -78,8 +78,8 @@
                                   (/= width (widget-width widget))
                                   (/= height (widget-height widget)))))
          (layer-layout-changed (or layout-changed
-                                  (/= layer-x (widget-layer-x widget))
-                                  (/= layer-y (widget-layer-y widget)))))
+                                   (/= layer-x (widget-layer-x widget))
+                                   (/= layer-y (widget-layer-y widget)))))
     (setf (widget-width widget) width)
     (setf (widget-height widget) height)
     (setf (widget-yoga-x widget) yoga-x)
@@ -94,9 +94,17 @@
     (let ((children-layer-offset-x (+ layer-offset-x (widget-children-scroll-x widget)))
           (children-layer-offset-y (+ layer-offset-y (widget-children-scroll-y widget))))
       (loop #:for child #:across (widget-children widget)
-            #:do (compute-widget-coordinates ui child
-                                             yoga-x yoga-y
-                                             children-layer-offset-x children-layer-offset-y)))))
+            #:do (unless (placeholderp child)
+                   (compute-widget-coordinates ui child
+                                               yoga-x yoga-y
+                                               children-layer-offset-x children-layer-offset-y))))))
+
+(export '(placeholder placeholder-index placeholderp))
+(defstruct (placeholder (:copier nil)
+                        (:constructor make-placeholder (parent index))
+                        (:predicate placeholderp))
+  (parent (unreachable) :type widget)
+  (index 0 :type fixnum))
 
 (defun widget-rendering-isolated-p (widget)
   (not (eq nil (widget-rendering-order-cache widget))))

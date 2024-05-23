@@ -61,15 +61,17 @@
 (defun scroll-content-max-x (widget max-x)
   (loop #:for child #:across (widget-children widget)
         #:do
-        (setf max-x (max max-x (+ (widget-yoga-x child) (widget-width child))))
-        (setf max-x (scroll-content-max-x child max-x)))
+        (unless (placeholderp child)
+          (setf max-x (max max-x (+ (widget-yoga-x child) (widget-width child))))
+          (setf max-x (scroll-content-max-x child max-x))))
   max-x)
 
 (defun scroll-content-max-y (widget max-y)
   (loop #:for child #:across (widget-children widget)
         #:do
-        (setf max-y (max max-y (+ (widget-yoga-y child) (widget-height child))))
-        (setf max-y (scroll-content-max-y child max-y)))
+        (unless (placeholderp child)
+          (setf max-y (max max-y (+ (widget-yoga-y child) (widget-height child))))
+          (setf max-y (scroll-content-max-y child max-y))))
   max-y)
 
 (defun w-scroll-impl (ui &key

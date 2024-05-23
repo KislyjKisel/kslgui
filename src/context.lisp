@@ -39,7 +39,7 @@
   (sdet-context (unreachable) :type sdet:context :read-only t)
   (temp-parent nil :type (or null widget))
   (temp-sibling-index 0 :type fixnum)
-  (temp-first-widget nil :type (or null widget))
+  ; (temp-first-widget nil :type (or null widget))
   (temp-root nil :type (or null widget))
   (temp-layer nil :type (or null layer))
   (blend2d-rect-pool (make-array 0 :adjustable t :fill-pointer 0) :type vector)
