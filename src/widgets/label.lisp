@@ -424,23 +424,29 @@
 
 (defun label-set-font-features (label font-features)
   (%blend2d:font-feature-settings-clear (font-cache-feature-settings (label-font-cache label)))
-  (dolist (font-feature font-features)
-    (check-type (car font-feature) (unsigned-byte 32))
-    (check-type (cdr font-feature) (unsigned-byte 32))
-    (%blend2d:font-feature-settings-set-value (font-cache-feature-settings (label-font-cache label))
-                                              (car font-feature)
-                                              (cdr font-feature)))
+  (when font-features
+        (loop #:for font-feature-pair #:across font-features #:do
+              (let ((font-feature-tag (car font-feature-pair))
+                    (font-feature-value (cdr font-feature-pair)))
+                (check-type font-feature-tag (unsigned-byte 32))
+                (check-type font-feature-value (unsigned-byte 32))
+                (%blend2d:font-feature-settings-set-value (font-cache-feature-settings (label-font-cache label))
+                                                          font-feature-tag
+                                                          font-feature-value))))
   (%blend2d:font-set-feature-settings (font-cache-font (label-font-cache label))
                                       (font-cache-feature-settings (label-font-cache label))))
 
 (defun label-set-font-variation (label font-variation)
   (%blend2d:font-variation-settings-clear (font-cache-variation-settings (label-font-cache label)))
-  (dolist (font-variation-value font-variation)
-    (check-type (car font-variation-value) (unsigned-byte 32))
-    (check-type (cdr font-variation-value) single-float)
-    (%blend2d:font-variation-settings-set-value (font-cache-variation-settings (label-font-cache label))
-                                                (car font-variation-value)
-                                                (cdr font-variation-value)))
+  (when font-variation
+        (loop #:for font-variation-pair #:across font-variation #:do
+              (let ((font-variation-tag (car font-variation-pair))
+                    (font-variation-value (cdr font-variation-pair)))
+                (check-type font-variation-tag (unsigned-byte 32))
+                (check-type font-variation-value real)
+                (%blend2d:font-variation-settings-set-value (font-cache-variation-settings (label-font-cache label))
+                                                            font-variation-tag
+                                                            (coerce font-variation-value 'single-float)))))
   (%blend2d:font-set-variation-settings (font-cache-font (label-font-cache label))
                                         (font-cache-variation-settings (label-font-cache label))))
 
