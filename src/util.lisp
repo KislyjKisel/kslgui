@@ -48,10 +48,10 @@
 
 (declaim
   (inline vector-delete)
-  (ftype (function (t vector) (values vector &optional)) vector-delete))
-(defun vector-delete (item vector)
+  (ftype (function (t vector &key (:start (mod #.array-dimension-limit)) (:end (or null (mod #.array-dimension-limit)))) (values vector &optional)) vector-delete))
+(defun vector-delete (item vector &key (start 0) (end nil))
   "Wraps DELETE and guarantees that the result has a fill-pointer and is adjustable."
-  (let ((result (delete item vector)))
+  (let ((result (delete item vector :start start :end end)))
     #-sbcl(unless (and (adjustable-array-p result) (array-has-fill-pointer-p result))
            (setf result (make-array (length result) :adjustable t :fill-pointer (length result) :initial-contents result)))
     result))

@@ -28,10 +28,11 @@
                              (:file "path")))
                (:module "widgets"
                 :components ((:file "block")
-                             (:file "cond")
                              (:file "fragment")
+                             (:file "cond")
+                             (:file "map-fix-index")
                              (:file "visual")
                              (:file "label")
-                             (:file "button")
                              (:file "scroll")
+                             (:file "button")
                              (:file "textbox")))))

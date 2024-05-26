@@ -1,16 +1,25 @@
 (in-package #:kslgui)
 
+(export 'placeholder)
+(defstruct (placeholder (:copier nil)
+                        (:predicate nil)
+                        (:constructor make-placeholder ()))
+  (parent nil :type (or null widget))
+  (index 0 :type fixnum)
+  (yoga-index 0 :type fixnum))
+
 (defun widget-print-function (w s d)
   (declare (ignore d))
   #+sbcl (format s "#<widget ~x>" (sb-kernel:get-lisp-obj-address w))
   #-sbcl (format s "#<widget>"))
 
-(export '(widget make-widget))
-(defstruct (widget (:copier nil) (:print-function widget-print-function))
-  (parent nil :type (or null widget))
-  (children (make-array 0 :fill-pointer 0 :adjustable t) :type (vector (or placeholder widget)))
-  (yoga-node nil)
-  (yoga-index 0 :type fixnum)
+(export '(widget make-widget widgetp))
+(defstruct (widget (:include placeholder)
+                   (:copier nil)
+                   (:predicate widgetp)
+                   (:print-function widget-print-function))
+  (children (make-array 0 :fill-pointer 0 :adjustable t) :type (vector placeholder))
+  (yoga-node nil :type (or null yogalayout:node-ref))
   (yoga-x 0.0 :type single-float)
   (yoga-y 0.0 :type single-float)
   (layer-x 0.0 :type single-float)
@@ -94,17 +103,10 @@
     (let ((children-layer-offset-x (+ layer-offset-x (widget-children-scroll-x widget)))
           (children-layer-offset-y (+ layer-offset-y (widget-children-scroll-y widget))))
       (loop #:for child #:across (widget-children widget)
-            #:do (unless (placeholderp child)
-                   (compute-widget-coordinates ui child
-                                               yoga-x yoga-y
-                                               children-layer-offset-x children-layer-offset-y))))))
-
-(export '(placeholder placeholder-index placeholderp))
-(defstruct (placeholder (:copier nil)
-                        (:constructor make-placeholder (parent index))
-                        (:predicate placeholderp))
-  (parent (unreachable) :type widget)
-  (index 0 :type fixnum))
+            #:do (when (widgetp child)
+                       (compute-widget-coordinates ui child
+                                                   yoga-x yoga-y
+                                                   children-layer-offset-x children-layer-offset-y))))))
 
 (defun widget-rendering-isolated-p (widget)
   (not (eq nil (widget-rendering-order-cache widget))))

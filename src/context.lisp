@@ -38,7 +38,8 @@
   (set-keyboard-focus (unreachable) :type (function ((or null widget)) (values &optional)) :read-only t)
   (sdet-context (unreachable) :type sdet:context :read-only t)
   (temp-parent nil :type (or null widget))
-  (temp-sibling-index 0 :type fixnum)
+  (temp-index 0 :type fixnum)
+  (temp-yoga-index 0 :type fixnum)
   (temp-root nil :type (or null widget))
   (temp-layer nil :type (or null layer))
   (blend2d-rect-pool (make-array 0 :adjustable t :fill-pointer 0) :type vector)
@@ -83,7 +84,7 @@
 (export 'sdet-context)
 (declaim
   (inline sdet-context)
-  (ftype (function (ui) (values sdet:context  &optional)) sdet-context))
+  (ftype (function (ui) (values sdet:context &optional)) sdet-context))
 (defun sdet-context (ui)
   (ui-sdet-context ui))
 

@@ -85,7 +85,8 @@
       `(progn
         (setf (ui-temp-parent ,ui) nil)
         (setf (ui-temp-root ,ui) nil)
-        (setf (ui-temp-sibling-index ,ui) 0)
+        (setf (ui-temp-index ,ui) 0)
+        (setf (ui-temp-yoga-index ,ui) 0)
         (sdet:clean-root (window-sdet-root ,window))
         (sdet:with-root (ui-sdet-context ,ui) (window-sdet-root ,window)
           (sdet:make-effect (ui-sdet-context ,ui) ,widget-tree))
@@ -94,7 +95,8 @@
             (error "UI composition didn't produce any widgets."))
         (setf (ui-temp-parent ,ui) nil)
         (setf (ui-temp-root ,ui) nil)
-        (setf (ui-temp-sibling-index ,ui) 0)
+        (setf (ui-temp-index ,ui) 0)
+        (setf (ui-temp-yoga-index ,ui) 0)
         (values)))))
 
 (declaim (ftype (function (ui widget) (values (or null layer) &optional)) widget-layer))
