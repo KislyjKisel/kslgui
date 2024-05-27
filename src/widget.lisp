@@ -183,8 +183,8 @@
            ,@(mapcar (lambda (child)
                        (cond
                         ((and (consp child) (eq 'quote (first child))) (second child))
-                        (t `(sdet:make-effect (ui-sdet-context ,ui) ,child)))
-                       children))))
+                        (t `(sdet:make-effect (ui-sdet-context ,ui) ,child))))
+                 children)))
       'nil))
 
 (defun wsd.test (ui tags widget-sym form)
