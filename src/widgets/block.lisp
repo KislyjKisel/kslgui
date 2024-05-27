@@ -1,12 +1,13 @@
 (in-package #:kslgui)
 
+(export 'w-block-impl)
 (defun w-block-impl (ui &key
                         set-layout
                         make-children
                         z-index position-type
-                        focus-behavior-as-sibling
-                        focus-behavior-as-parent-x
-                        focus-behavior-as-parent-y)
+                        (focus-behavior-as-sibling :to-children)
+                        (focus-behavior-as-parent-x :passthrough)
+                        (focus-behavior-as-parent-y :passthrough))
   (let ((widget (make-widget :focus-behavior-as-sibling focus-behavior-as-sibling
                              :focus-behavior-as-parent-x focus-behavior-as-parent-x
                              :focus-behavior-as-parent-y focus-behavior-as-parent-y)))
