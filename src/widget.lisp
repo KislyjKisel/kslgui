@@ -180,7 +180,10 @@
       (let ((widget (or let (gensym))))
         `(lambda (,widget)
            (declare (ignorable ,widget))
-           ,@(mapcar (lambda (child) `(sdet:make-effect (ui-sdet-context ,ui) ,child)) children)))
+           ,@(mapcar (lambda (child)
+                       (cond
+                        ((and (consp child) (eq 'quote (first child))) (second child))
+                        (t `(sdet:make-effect (ui-sdet-context ,ui) ,child)) children)))))
       'nil))
 
 (defun wsd.test (ui tags widget-sym form)
