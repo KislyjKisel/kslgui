@@ -13,7 +13,22 @@
   #+sbcl (format s "#<widget ~x>" (sb-kernel:get-lisp-obj-address w))
   #-sbcl (format s "#<widget>"))
 
-(export '(widget make-widget widgetp))
+(export '(widget
+          make-widget widgetp
+          widget-parent
+          hitp on-render-begin on-render-end on-layout-changed
+          on-mouse-enter on-mouse-leave on-mouse-click-left on-mouse-click-middle on-mouse-click-right
+          on-mouse-move on-mouse-scroll on-mouse-down-left on-mouse-down-middle on-mouse-down-right
+          on-mouse-up-left on-mouse-up-middle on-mouse-up-right on-mouse-ownership-lost cursor
+          on-key-action on-key-down on-key-up on-focus-recieved on-focus-lost on-text-input on-copy on-paste
+          widget-hitp widget-on-render-begin widget-on-render-end widget-on-layout-changed
+          widget-on-mouse-enter widget-on-mouse-leave widget-on-mouse-click-left
+          widget-on-mouse-click-middle widget-on-mouse-click-right
+          widget-on-mouse-move widget-on-mouse-scroll widget-on-mouse-down-left
+          widget-on-mouse-down-middle widget-on-mouse-down-right widget-on-mouse-up-left
+          widget-on-mouse-up-middle widget-on-mouse-up-right widget-on-mouse-ownership-lost widget-cursor
+          widget-on-key-action widget-on-key-down widget-on-key-up widget-on-focus-recieved
+          widget-on-focus-lost widget-on-text-input widget-on-copy widget-on-paste))
 (defstruct (widget (:include placeholder)
                    (:copier nil)
                    (:predicate widgetp)

@@ -193,22 +193,31 @@
   (setf (ui-key-to-action ui) key-to-action)
   (values))
 
+(export 'current-layer)
+(declaim (ftype (function (ui) (values (or null layer) &optional)) current-layer))
+(defun current-layer (ui)
+  (ui-temp-layer ui))
+
 (defmacro define-pool-functions (type-name pool-accessor alloc-form (freed-sym free-form))
-  `(progn
-    (defun ,(intern (concatenate 'string "ALLOC-" type-name)) (ui)
-      (if (= 0 (length (,pool-accessor ui)))
-          ,alloc-form
-          (progn
-           (decf (fill-pointer (,pool-accessor ui)))
-           (aref (,pool-accessor ui) (fill-pointer (,pool-accessor ui))))))
+  (let ((alloc-fn-sym (intern (concatenate 'string "ALLOC-" type-name)))
+        (free-fn-sym (intern (concatenate 'string "FREE-" type-name))))
+    `(progn
+      (export ',alloc-fn-sym)
+      (defun ,alloc-fn-sym (ui)
+        (if (= 0 (length (,pool-accessor ui)))
+            ,alloc-form
+            (progn
+             (decf (fill-pointer (,pool-accessor ui)))
+             (aref (,pool-accessor ui) (fill-pointer (,pool-accessor ui))))))
 
-    (defun ,(intern (concatenate 'string "FREE-" type-name)) (ui x)
-      (vector-push-extend x (,pool-accessor ui)))
+      (export ',free-fn-sym)
+      (defun ,free-fn-sym (ui x)
+        (vector-push-extend x (,pool-accessor ui)))
 
-    (defun ,(intern (concatenate 'string "CLEAR-" type-name "-POOL")) (ui)
-      (loop #:for ,freed-sym #:across (,pool-accessor ui)
-            #:do ,free-form)
-      (setf (fill-pointer (,pool-accessor ui)) 0))))
+      (defun ,(intern (concatenate 'string "CLEAR-" type-name "-POOL")) (ui)
+        (loop #:for ,freed-sym #:across (,pool-accessor ui)
+              #:do ,free-form)
+        (setf (fill-pointer (,pool-accessor ui)) 0)))))
 
 (define-pool-functions "BLEND2D-RECT" ui-blend2d-rect-pool (autowrap:alloc '%blend2d:rect) (x (autowrap:free x)))
 (define-pool-functions "BLEND2D-POINT" ui-blend2d-point-pool (autowrap:alloc '%blend2d:point) (x (autowrap:free x)))
