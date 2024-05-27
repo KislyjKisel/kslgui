@@ -15,7 +15,8 @@
 
 (export '(widget
           make-widget widgetp
-          widget-parent
+          widget-parent widget-yoga-node
+          widget-yoga-x widget-yoga-y widget-layer-x widget-layer-y widget-width widget-height
           hitp on-render-begin on-render-end on-layout-changed
           on-mouse-enter on-mouse-leave on-mouse-click-left on-mouse-click-middle on-mouse-click-right
           on-mouse-move on-mouse-scroll on-mouse-down-left on-mouse-down-middle on-mouse-down-right
