@@ -87,6 +87,7 @@
         (setf (ui-temp-root ,ui) nil)
         (setf (ui-temp-index ,ui) 0)
         (setf (ui-temp-yoga-index ,ui) 0)
+        (setf (ui-temp-layer ,ui) (window-layer ,window))
         (sdet:clean-root (window-sdet-root ,window))
         (sdet:with-root (ui-sdet-context ,ui) (window-sdet-root ,window)
           (sdet:make-effect (ui-sdet-context ,ui) ,widget-tree))
@@ -95,12 +96,14 @@
         (setf (ui-temp-root ,ui) nil)
         (setf (ui-temp-index ,ui) 0)
         (setf (ui-temp-yoga-index ,ui) 0)
+        (setf (ui-temp-layer ,ui) nil)
         (values)))))
 
 (declaim (ftype (function (ui widget) (values (or null layer) &optional)) widget-layer))
 (defun widget-layer (ui widget)
+  (declare (type widget widget))
   (loop #:while (widget-parent widget)
-        #:do (setf widget (the 'widget (widget-parent widget))))
+        #:do (setf widget (widget-parent widget)))
   (maphash (lambda (layer windows)
              (loop #:for window #:across windows
                    #:do (if (eq widget (window-widget window))

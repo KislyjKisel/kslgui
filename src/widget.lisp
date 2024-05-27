@@ -53,8 +53,9 @@
 (export 'with-composition-after-placeholder)
 (defmacro with-composition-after-placeholder (ui placeholder &body body)
   (alexandria:once-only (ui placeholder)
-    (alexandria:with-gensyms (previous-parent previous-index previous-yoga-index initial-new-index initial-new-yoga-index)
+    (alexandria:with-gensyms (previous-parent previous-layer previous-index previous-yoga-index initial-new-index initial-new-yoga-index)
       `(let ((,previous-parent (ui-temp-parent ,ui))
+             (,previous-layer (ui-temp-layer ,ui))
              (,previous-index (ui-temp-index ,ui))
              (,previous-yoga-index (ui-temp-yoga-index ,ui))
              (,initial-new-index (1+ (placeholder-index ,placeholder)))
@@ -63,9 +64,14 @@
          (setf (ui-temp-index ,ui) ,initial-new-index)
          (setf (ui-temp-yoga-index ,ui) ,initial-new-yoga-index)
          (setf (ui-temp-parent ,ui) (placeholder-parent ,placeholder))
+         (unless ,previous-layer
+           ;; If the layer is not NIL we are in composition and our layer is NIL and useless
+           ;; If the layer is NIL, we are in an effect re-run, have a layer and can set it
+           (setf (ui-temp-layer ,ui) (widget-layer ,ui (placeholder-parent ,placeholder))))
          (unwind-protect
              (progn
               ,@body)
+           (setf (ui-temp-layer ,ui) ,previous-layer)
            (if (and (eq ,previous-parent (placeholder-parent ,placeholder))
                     (<= ,initial-new-index ,previous-index))
                (progn
