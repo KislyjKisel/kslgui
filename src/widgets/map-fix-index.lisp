@@ -23,13 +23,14 @@
   (values))
 
 (export 'w-map-fix-index)
-(defmacro w-map-fix-index (values (get-val-sym index-sym &key (equal '#'eql)) &body body)
+(defmacro w-map-fix-index (values (get-val-sym index-sym &key ui (equal '#'eql)) &body body)
   (let ((actual-get-val-sym (or get-val-sym (gensym)))
         (actual-index-sym (or index-sym (gensym))))
-    `(w-map-fix-index* ,*ui*
-                       ,(if (constantp values) values `(lambda () ,values))
-                       (lambda (,actual-get-val-sym ,actual-index-sym)
-                         (declare (ignore ,@(unless get-val-sym (list actual-get-val-sym))
-                                          ,@(unless index-sym (list actual-index-sym))))
-                         ,@body)
-                       :equal ,equal)))
+    (macroexpand-with-ui* ui
+      `(w-map-fix-index* ,*ui*
+                         ,(make-computed-prop values :initialized nil)
+                         (lambda (,actual-get-val-sym ,actual-index-sym)
+                           (declare (ignore ,@(unless get-val-sym (list actual-get-val-sym))
+                                            ,@(unless index-sym (list actual-index-sym))))
+                           ,@body)
+                         :equal ,equal))))

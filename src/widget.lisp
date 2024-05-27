@@ -166,11 +166,13 @@
 
 (export 'make-layout-setting-lambda)
 (defun make-layout-setting-lambda (ui layout)
-  (if layout
-      (alexandria:with-gensyms (widget)
-        `(lambda (,widget)
-           ,(make-layout-setting-code ui layout widget)))
-      'nil))
+  (cond
+   ((null layout) 'nil)
+   ((and (consp layout) (eq 'quote (first layout))) (second layout))
+   (t
+     (alexandria:with-gensyms (widget)
+       `(lambda (,widget)
+          ,(make-layout-setting-code ui layout widget))))))
 
 (export 'make-children-making-lambda)
 (defun make-children-making-lambda (ui children &key let)
@@ -215,9 +217,12 @@
                    branches)))
 
 (export 'make-computed-prop)
-(defun make-computed-prop (val &key let)
+(defun make-computed-prop (val &key let (initialized t))
+  (assert (or initialized (null let)))
   (cond
+   ((and (consp val) (eq 'quote (first val))) (second val))
    ((constantp val) val)
+   ((not initialized) `(lambda () ,val))
    (t (let ((widget-sym (or let (gensym))))
         `(lambda (,widget-sym)
            (declare (ignorable ,widget-sym))
@@ -233,9 +238,10 @@
 (defun make-visual-prop (ui vdescr &key let widget-visual)
   (let ((widget (or let (gensym)))
         (vdescr-item-computed (gensym)))
-    (if (null vdescr)
-        'nil
-        `(lambda (,widget)
+    (cond
+     ((null vdescr) 'nil)
+     ((and (consp vdescr) (eq 'quote (first vdescr))) (second vdescr))
+     (t `(lambda (,widget)
            (declare (ignorable ,widget))
            ,(if (= 1 (length vdescr))
                 `(let ((,vdescr-item-computed (lambda () ,(first vdescr))))
@@ -256,7 +262,7 @@
                   `(progn
                     (setf (,widget-visual ,widget) (make-array ,(length vdescr) :initial-element nil))
                     ,@(reverse forms))))
-           (values)))))
+           (values))))))
 
 (export 'run-visual-prop)
 (defun run-visual-prop (widget prop)

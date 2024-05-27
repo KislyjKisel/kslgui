@@ -612,8 +612,25 @@
 
 (defstruct (label-widget (:include widget)
                          (:copier nil)
-                         (:constructor make-label-widget (label)))
+                         (:constructor make-label-widget (label &aux (hitp #'label-widget-hitp-impl))))
   (label))
+
+(declaim (inline point-over-label-p))
+(defun point-over-label-p (label p-rel-w-x p-rel-w-y)
+  (loop #:for tl #:across (label-text-lines label)
+        #:do
+        (when (and (>= p-rel-w-x (+ (label-text-line-x-offset tl)))
+                   (<= p-rel-w-x (+ (label-text-line-x-offset tl) (label-text-line-width tl)))
+                   (>= p-rel-w-y (+ (label-text-line-y-offset tl) (%blend2d:font-metrics.y-min (font-cache-metrics (label-font-cache label)))))
+                   (<= p-rel-w-y (+ (label-text-line-y-offset tl) (%blend2d:font-metrics.y-max (font-cache-metrics (label-font-cache label))))))
+              (return-from point-over-label-p t)))
+  nil)
+
+(defun label-widget-hitp-impl (ui widget mx my)
+  (declare (ignore ui))
+  (point-over-label-p (label-widget-label widget)
+                      (- mx (widget-layer-x widget))
+                      (- my (widget-layer-y widget))))
 
 (defun w-label-impl (ui &key
                         set-layout z-index position-type
@@ -630,14 +647,8 @@
     ; (yogalayout:node-set-baseline-func (widget-yoga-node widget) TODO)
     (setf (widget-cursor widget)
       (lambda (ui widget x y)
-        (declare (ignore ui))
-        (loop #:for tl #:across (label-text-lines (label-widget-label widget))
-              #:do
-              (when (and (>= x (+ (widget-layer-x widget) (label-text-line-x-offset tl)))
-                         (<= x (+ (widget-layer-x widget) (label-text-line-x-offset tl) (label-text-line-width tl)))
-                         (>= y (+ (widget-layer-y widget) (label-text-line-y-offset tl) (%blend2d:font-metrics.y-min (font-cache-metrics (label-font-cache (label-widget-label widget))))))
-                         (<= y (+ (widget-layer-y widget) (label-text-line-y-offset tl) (%blend2d:font-metrics.y-max (font-cache-metrics (label-font-cache (label-widget-label widget)))))))
-                    (return :text)))))
+        (declare (ignore ui widget x y))
+        :text))
     (initialize-label ui
                       (label-widget-label widget)
                       :widget widget
@@ -718,7 +729,8 @@
                               (:constructor make-text-visual-state (label font font-size
                                                                           &aux
                                                                           (render #'text-visual-state-render-impl)
-                                                                          (destroy #'text-visual-state-destroy-impl))))
+                                                                          (destroy #'text-visual-state-destroy-impl)
+                                                                          (hitp #'text-visual-state-hitp-impl))))
   (label (unreachable) :type label)
   (font (unreachable) :type symbol)
   (font-size (unreachable) :type single-float)
@@ -774,3 +786,9 @@
 (defun text-visual-state-destroy-impl (vstate)
   (destroy-label (text-visual-state-label vstate))
   (values))
+
+(defun text-visual-state-hitp-impl (ui vstate x y w h mx my)
+  (declare (ignore ui))
+  (and (point-over-label-p (text-visual-state-label vstate) (- mx x) (- my y))
+       (< mx (+ x w))
+       (< my (+ y h))))

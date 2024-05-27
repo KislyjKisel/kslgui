@@ -2,12 +2,16 @@
 
 (declaim (ftype (function (ui widget single-float single-float) (values boolean &optional)) hit-widget-p))
 (defun hit-widget-p (ui widget x y)
-  (if (widget-hitp widget)
-      (funcall (widget-hitp widget) ui widget x y)
-      (and (>= x (widget-layer-x widget))
-           (>= y (widget-layer-y widget))
-           (< x (+ (widget-layer-x widget) (widget-width widget)))
-           (< y (+ (widget-layer-y widget) (widget-height widget))))))
+  (when (widget-hitp widget)
+        (funcall (widget-hitp widget) ui widget x y)))
+
+(declaim (ftype (function (ui widget single-float single-float) (values boolean &optional)) default-widget-hit-p))
+(defun default-widget-hit-p (ui widget x y)
+  (declare (ignore ui))
+  (and (>= x (widget-layer-x widget))
+       (>= y (widget-layer-y widget))
+       (< x (+ (widget-layer-x widget) (widget-width widget)))
+       (< y (+ (widget-layer-y widget) (widget-height widget)))))
 
 (export 'own-mouse)
 (declaim (ftype (function (ui widget) (values &optional)) own-mouse))
