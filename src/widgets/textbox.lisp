@@ -8,6 +8,7 @@
                            (:constructor make-textbox-widget
                                          (label on-changed on-enter
                                                 &aux
+                                                (hitp #'default-widget-hit-p)
                                                 (focus-behavior-as-sibling :focus)
                                                 (cursor :text))))
   (label)

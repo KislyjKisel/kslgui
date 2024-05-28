@@ -5,6 +5,7 @@
   (when (widget-hitp widget)
         (funcall (widget-hitp widget) ui widget x y)))
 
+(export 'default-widget-hit-p)
 (declaim (ftype (function (ui widget single-float single-float) (values boolean &optional)) default-widget-hit-p))
 (defun default-widget-hit-p (ui widget x y)
   (declare (ignore ui))
