@@ -645,10 +645,7 @@
     (yogalayout:node-set-node-type (widget-yoga-node widget) yogalayout:+node-type-text+)
     (yogalayout:node-set-measure-func (widget-yoga-node widget) (label-measure-func-pointer (label-widget-label widget)))
     ; (yogalayout:node-set-baseline-func (widget-yoga-node widget) TODO)
-    (setf (widget-cursor widget)
-      (lambda (ui widget x y)
-        (declare (ignore ui widget x y))
-        :text))
+    (setf (widget-cursor widget) :text)
     (initialize-label ui
                       (label-widget-label widget)
                       :widget widget
