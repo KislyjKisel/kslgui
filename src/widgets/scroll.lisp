@@ -290,7 +290,7 @@
                                         (:x (- (scroll-content-max-x widget 0.0) (widget-yoga-x widget)))
                                         (:y (- (scroll-content-max-y widget 0.0) (widget-yoga-y widget))))
                                       'double-float))
-                 (scroll-length (- content-size-main widget-size-main))
+                 (scroll-length (max 0.1d0 (- content-size-main widget-size-main)))
                  (offset (alloc-blend2d-point ui))
                  (clip (alloc-blend2d-rect ui))
                  ;; Don't move view in case content/thumb length changed
@@ -305,7 +305,7 @@
             (setf (scroll-widget-thumb-length widget)
               (max (scroll-widget-min-thumb-length widget)
                 (min (scroll-widget-max-thumb-length widget) widget-size-main
-                  (* widget-size-main (/ widget-size-main content-size-main)))))
+                  (* widget-size-main (/ widget-size-main (max 0.1d0 content-size-main))))))
 
             (setf (scroll-widget-prev-scroll-length widget) scroll-length)
             (setf (scroll-widget-offset widget) adjusted-offset)
