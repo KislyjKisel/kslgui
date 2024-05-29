@@ -24,8 +24,11 @@
   (cursor-renderer nil :type t)
   (on-text-input-started nil :type (or null (function () (values &optional))))
   (on-text-input-finished nil :type (or null (function () (values &optional))))
-  (key-to-character nil :type (or null (function (t) (or null character))))
-  (key-to-action nil :type (or null (function (t) (or null key-action))))
+  (on-copy nil :type (or null (function (string) (values &optional))))
+  (on-paste nil :type (or null (function () (values (or null string) &optional))))
+  (key-to-character nil :type (or null (function (t) (values (or null character) &optional))))
+  (key-to-mod nil :type (or null (function (t) (values key-modifier &optional))))
+  (key-to-action nil :type (or null (function (t) (values (or null key-action) &optional))))
   (fonts (make-hash-table) :type hash-table)
   (yoga-config (yogalayout:config-new) :type %yogalayout:config-ref :read-only t)
   (mouse-owner nil :type (or null widget)) ; nil = all widgets recieve events when mouse is over them
@@ -118,6 +121,27 @@
   (setf (ui-on-text-input-finished ui) text-input-finished-handler)
   (values))
 
+(export 'set-copy-handler)
+(defun set-copy-handler (ui copy-handler)
+  (setf (ui-on-copy ui) copy-handler)
+  (values))
+
+(export 'set-paste-handler)
+(defun set-paste-handler (ui paste-handler)
+  (setf (ui-on-paste ui) paste-handler)
+  (values))
+
+(export 'on-copy)
+(defun on-copy (ui value)
+  (when (ui-on-copy ui)
+        (funcall (ui-on-copy ui) value))
+  (values))
+
+(export 'on-paste)
+(defun on-paste (ui)
+  (when (ui-on-paste ui)
+        (funcall (ui-on-paste ui))))
+
 (export 'insert-window)
 (defun insert-window (ui window)
   (multiple-value-bind (windows present)
@@ -197,6 +221,11 @@
 (declaim (ftype (function (ui) (values (or null layer) &optional)) current-layer))
 (defun current-layer (ui)
   (ui-temp-layer ui))
+
+(export 'focused-window)
+(declaim (ftype (function (ui) (values (or null window) &optional)) focused-window))
+(defun focused-window (ui)
+  (ui-focused-window ui))
 
 (defmacro define-pool-functions (type-name pool-accessor alloc-form (freed-sym free-form))
   (let ((alloc-fn-sym (intern (concatenate 'string "ALLOC-" type-name)))

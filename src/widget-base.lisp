@@ -21,7 +21,7 @@
           on-mouse-enter on-mouse-leave on-mouse-click-left on-mouse-click-middle on-mouse-click-right
           on-mouse-move on-mouse-scroll on-mouse-down-left on-mouse-down-middle on-mouse-down-right
           on-mouse-up-left on-mouse-up-middle on-mouse-up-right on-mouse-ownership-lost cursor
-          on-key-action on-key-down on-key-up on-focus-recieved on-focus-lost on-text-input on-copy on-paste
+          on-key-action on-key-down on-key-up on-focus-recieved on-focus-lost on-text-input
           widget-hitp widget-on-render-begin widget-on-render-end widget-on-layout-changed
           widget-on-mouse-enter widget-on-mouse-leave widget-on-mouse-click-left
           widget-on-mouse-click-middle widget-on-mouse-click-right
@@ -29,7 +29,7 @@
           widget-on-mouse-down-middle widget-on-mouse-down-right widget-on-mouse-up-left
           widget-on-mouse-up-middle widget-on-mouse-up-right widget-on-mouse-ownership-lost widget-cursor
           widget-on-key-action widget-on-key-down widget-on-key-up widget-on-focus-recieved
-          widget-on-focus-lost widget-on-text-input widget-on-copy widget-on-paste))
+          widget-on-focus-lost widget-on-text-input))
 (defstruct (widget (:include placeholder)
                    (:copier nil)
                    (:predicate widgetp)
@@ -80,14 +80,12 @@
   (focus-behavior-as-parent-x :passthrough :type (or focus-behavior-as-parent (function (ui widget key-action) (values (or null focus-behavior-as-parent widget) &optional))))
   (focus-behavior-as-parent-y :passthrough :type (or focus-behavior-as-parent (function (ui widget key-action) (values (or null focus-behavior-as-parent widget) &optional))))
   (scroll-on-focus-changed nil :type (or null (function (ui widget key-action single-float single-float single-float single-float) (values &optional))))
-  (on-key-action nil :type (or null (function (ui widget t key-action) (values boolean &optional))))
-  (on-key-down nil :type (or null (function (ui widget t) (values boolean &optional))))
-  (on-key-up nil :type (or null (function (ui widget t) (values boolean &optional))))
+  (on-key-action nil :type (or null (function (ui widget t key-modifier key-action) (values boolean &optional))))
+  (on-key-down nil :type (or null (function (ui widget t key-modifier) (values boolean &optional))))
+  (on-key-up nil :type (or null (function (ui widget t key-modifier) (values boolean &optional))))
   (on-focus-recieved nil :type (or null (function (ui widget) (values &optional))))
   (on-focus-lost nil :type (or null (function (ui widget) (values &optional))))
   (on-text-input nil :type (or null (function (ui widget string) (values boolean &optional))))
-  (on-copy nil :type (or null (function (ui widget) (values (or null string) &optional))))
-  (on-paste nil :type (or null (function (ui widget string) (values boolean &optional))))
   (enabled-computed nil))
 
 (defun compute-widget-coordinates (ui widget yoga-offset-x yoga-offset-y layer-offset-x layer-offset-y)

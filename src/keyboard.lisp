@@ -31,59 +31,35 @@
         (setf parent (widget-parent parent))))
 
 (export 'emit-text-input)
-(declaim (ftype (function (ui string) (values &optional)) emit-text-input))
-(defun emit-text-input (ui text)
+(declaim (ftype (function (ui string &key (:window (or null window))) (values &optional)) emit-text-input))
+(defun emit-text-input (ui text &key window)
   (or
    (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui))))
      (when (and kb-focus (widget-on-text-input kb-focus))
            (setf (layer-dirty (widget-layer ui kb-focus)) t)
            (funcall (widget-on-text-input kb-focus) ui kb-focus text)))
-   (let ((win-focus (ui-focused-window ui)))
-     (when (and win-focus (window-on-text-input win-focus))
+   (let ((win-focus (or window (ui-focused-window ui))))
+     (when win-focus
            (setf (layer-dirty (window-layer win-focus)) t)
-           (funcall (window-on-text-input win-focus) ui win-focus text))))
-  (values))
-
-(export 'emit-copy)
-(declaim (ftype (function (ui) (values (or null string) &optional)) emit-copy))
-(defun emit-copy (ui)
-  (or
-   (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui))))
-     (when (and kb-focus (widget-on-copy kb-focus))
-           (setf (layer-dirty (widget-layer ui kb-focus)) t)
-           (funcall (widget-on-copy kb-focus) ui kb-focus)))
-   (let ((win-focus (ui-focused-window ui)))
-     (when (and win-focus (window-on-text-input win-focus))
-           (setf (layer-dirty (window-layer win-focus)) t)
-           (funcall (window-on-copy win-focus) ui win-focus)))))
-
-(export 'emit-paste)
-(declaim (ftype (function (ui string) (values &optional)) emit-paste))
-(defun emit-paste (ui text)
-  (or
-   (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui))))
-     (when (and kb-focus (widget-on-paste kb-focus))
-           (setf (layer-dirty (widget-layer ui kb-focus)) t)
-           (funcall (widget-on-paste kb-focus) ui kb-focus text)))
-   (let ((win-focus (ui-focused-window ui)))
-     (when (and win-focus (window-on-paste win-focus))
-           (setf (layer-dirty (window-layer win-focus)) t)
-           (funcall (window-on-paste win-focus) ui win-focus text))))
+           nil ; todo: key events without focus
+           )))
   (values))
 
 (export 'emit-key-down)
-(declaim (ftype (function (ui t) (values &optional)) emit-key-down))
-(defun emit-key-down (ui key)
+(declaim (ftype (function (ui t &key (:window (or null window))) (values &optional)) emit-key-down))
+(defun emit-key-down (ui key &key window)
   (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui)))
-        (win-focus (ui-focused-window ui))
-        (action (and (ui-key-to-action ui) (funcall (ui-key-to-action ui) key))))
+        (win-focus (or window (ui-focused-window ui)))
+        (action (and (ui-key-to-action ui) (funcall (ui-key-to-action ui) key)))
+        (keymod (or (and (ui-key-to-mod ui) (funcall (ui-key-to-mod ui) key)) 0)))
     (if action
         (or (when (and kb-focus (widget-on-key-action kb-focus))
                   (setf (layer-dirty (widget-layer ui kb-focus)) t)
-                  (funcall (widget-on-key-action kb-focus) ui kb-focus key action))
-            (when (and win-focus (window-on-key-action win-focus))
+                  (funcall (widget-on-key-action kb-focus) ui kb-focus key keymod action))
+            (when win-focus
                   (setf (layer-dirty (window-layer win-focus)) t)
-                  (funcall (window-on-key-action win-focus) ui win-focus key action))
+                  nil ; todo: key events without focus
+                  )
             (cond
              ((and kb-focus (or (eq action :up)
                                 (eq action :down)
@@ -97,22 +73,25 @@
         (or
          (when (and kb-focus (widget-on-key-down kb-focus))
                (setf (layer-dirty (widget-layer ui kb-focus)) t)
-               (funcall (widget-on-key-down kb-focus) ui kb-focus key))
-         (when (and win-focus (window-on-key-down win-focus))
+               (funcall (widget-on-key-down kb-focus) ui kb-focus key keymod))
+         (when win-focus
                (setf (layer-dirty (window-layer win-focus)) t)
-               (funcall (window-on-key-down win-focus) ui win-focus key)))))
+               nil ; todo: key events without focus
+               ))))
   (values))
 
 (export 'emit-key-up)
-(declaim (ftype (function (ui t) (values &optional)) emit-key-up))
-(defun emit-key-up (ui key)
-  (or
-   (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui))))
-     (when (and kb-focus (widget-on-key-up kb-focus))
-           (setf (layer-dirty (widget-layer ui kb-focus)) t)
-           (funcall (widget-on-key-up kb-focus) ui kb-focus key)))
-   (let ((win-focus (ui-focused-window ui)))
-     (when (and win-focus (window-on-key-up win-focus))
-           (setf (layer-dirty (window-layer win-focus)) t)
-           (funcall (window-on-key-up win-focus) ui win-focus key))))
+(declaim (ftype (function (ui t &key (:window (or null window))) (values &optional)) emit-key-up))
+(defun emit-key-up (ui key &key window)
+  (let ((keymod (or (and (ui-key-to-mod ui) (funcall (ui-key-to-mod ui) key)) 0)))
+    (or
+     (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui))))
+       (when (and kb-focus (widget-on-key-up kb-focus))
+             (setf (layer-dirty (widget-layer ui kb-focus)) t)
+             (funcall (widget-on-key-up kb-focus) ui kb-focus key keymod)))
+     (let ((win-focus (or window (ui-focused-window ui))))
+       (when win-focus
+             (setf (layer-dirty (window-layer win-focus)) t)
+             nil ; todo: key events without focus
+             ))))
   (values))

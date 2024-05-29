@@ -14,7 +14,8 @@
 (export 'key-action)
 (deftype key-action ()
   '(member :enter :backspace :delete
-           :up :down :left :right))
+           :up :down :left :right
+           :copy :paste))
 
 ;; Moving focus inside this widget:
 ;; CONTAIN - focus can't go outside the widget;
@@ -41,3 +42,24 @@
            :grab :move :move-x :move-y
            :zoom-in :zoom-out
            :progress :forbidden))
+
+(defconstant +key-modifier-shift-left+ (ash 1 0))
+(defconstant +key-modifier-shift-right+ (ash 1 1))
+(defconstant +key-modifier-ctrl-left+ (ash 1 2))
+(defconstant +key-modifier-ctrl-right+ (ash 1 3))
+(defconstant +key-modifier-alt-left+ (ash 1 4))
+(defconstant +key-modifier-alt-right+ (ash 1 5))
+(defconstant +key-modifier-alt-gr+ (ash 1 6))
+(defconstant +key-modifier-gui-left+ (ash 1 7))
+(defconstant +key-modifier-gui-right+ (ash 1 8))
+(defconstant +key-modifier-num-lock+ (ash 1 9))
+(defconstant +key-modifier-caps-lock+ (ash 1 10))
+(defconstant +key-modifier-scroll-lock+ (ash 1 11))
+(defconstant +key-modifier-ctrl+ (logior +key-modifier-ctrl-left+ +key-modifier-ctrl-right+))
+(defconstant +key-modifier-shift+ (logior +key-modifier-shift-left+ +key-modifier-shift-right+))
+(defconstant +key-modifier-alt+ (logior +key-modifier-alt-left+ +key-modifier-alt-right+))
+(defconstant +key-modifier-gui+ (logior +key-modifier-gui-left+ +key-modifier-gui-right+))
+
+(export 'key-modifier)
+(deftype key-modifier ()
+  '(unsigned-byte 12))
