@@ -152,7 +152,8 @@
     (setf (%blend2d:point.y origin) y)
     (%blend2d:context-set-stroke-width ctx (cursor-renderer-stroke-width renderer))
     (%blend2d:context-fill-path-d-rgba32 ctx origin path #xFFFFFFFF)
-    (%blend2d:context-stroke-path-d-rgba32 ctx origin path #xFF000000))
+    (float-features:with-float-traps-masked (:invalid)
+      (%blend2d:context-stroke-path-d-rgba32 ctx origin path #xFF000000)))
   (values))
 
 (export 'destroy-cursor-renderer)
