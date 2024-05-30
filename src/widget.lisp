@@ -93,6 +93,8 @@
                           (values &optional))
                 initialize-widget))
 (defun initialize-widget (ui widget &key z-index position-type (enabled t))
+  "Note: Z-INDEX and POSITION-TYPE are expected to be created via MAKE-COMPUTED-PROP and thus must be either values or functions taking widget and returning a value or another function.
+  For them to be properly reactive they need to be computed in the returned function!"
   (let* ((parent (ui-temp-parent ui)))
     (setf (widget-yoga-node widget) (yogalayout:node-new-with-config (ui-yoga-config ui)))
     (setf (widget-position-type-computed widget) (init-computed-prop widget position-type))
