@@ -639,13 +639,17 @@
                         align-horz align-vert
                         wrap
                         overflow
-                        overflow-text)
+                        overflow-text
+                        (cursor :text))
   (let ((widget (make-label-widget (make-label*))))
     (initialize-widget ui widget :z-index z-index :position-type position-type)
     (yogalayout:node-set-node-type (widget-yoga-node widget) yogalayout:+node-type-text+)
     (yogalayout:node-set-measure-func (widget-yoga-node widget) (label-measure-func-pointer (label-widget-label widget)))
     ; (yogalayout:node-set-baseline-func (widget-yoga-node widget) TODO)
-    (setf (widget-cursor widget) :text)
+    (let ((cursor (init-computed-prop widget cursor)))
+      (sdet:make-effect (sdet-context ui)
+        (setf (widget-cursor widget) cursor)
+        nil))
     (initialize-label ui
                       (label-widget-label widget)
                       :widget widget
@@ -681,7 +685,8 @@
                         (text "") (text-style #xFFFFFFFF)
                         font (font-size 12.0f0) (font-features '()) (font-variation '())
                         (align-horz :start) (align-vert :start)
-                        (wrap :whitespace) (overflow :clip) (overflow-text " ... "))
+                        (wrap :whitespace) (overflow :clip) (overflow-text " ... ")
+                        (cursor :text))
   (macroexpand-with-ui* ui
     `(w-label-impl ,*ui*
                    :set-layout ,(make-layout-setting-lambda *ui* layout)
@@ -697,7 +702,8 @@
                    :align-vert ,(make-computed-prop align-vert :let let)
                    :wrap ,(make-computed-prop wrap :let let)
                    :overflow ,(make-computed-prop overflow :let let)
-                   :overflow-text ,(make-computed-prop overflow-text :let let))))
+                   :overflow-text ,(make-computed-prop overflow-text :let let)
+                   :cursor ,(make-computed-prop cursor :let let))))
 
 ;;; Visual
 
