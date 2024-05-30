@@ -19,7 +19,7 @@
                                     focus-behavior-as-parent-x
                                     focus-behavior-as-parent-y)))
     (initialize-widget ui widget :z-index z-index :position-type position-type)
-    (run-visual-prop widget visual)
+    (run-visual-prop widget visual #'visual-widget-visual #'(setf visual-widget-visual))
     (when set-layout (funcall set-layout widget))
     (when make-children (append-children ui widget make-children))
     (setf (widget-on-render-begin widget)
@@ -51,4 +51,4 @@
                     :focus-behavior-as-sibling ,focus-behavior-as-sibling
                     :focus-behavior-as-parent-x ,focus-behavior-as-parent-x
                     :focus-behavior-as-parent-y ,focus-behavior-as-parent-y
-                    :visual ,(make-visual-prop *ui* visual :let let :widget-visual 'visual-widget-visual))))
+                    :visual ,(make-visual-prop *ui* visual :let let))))

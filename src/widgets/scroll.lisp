@@ -110,9 +110,9 @@
     (when set-layout (funcall set-layout widget))
     (yogalayout:node-style-set-overflow (widget-yoga-node widget) yogalayout:+overflow-scroll+)
     (setf (scroll-widget-thumb-sensor widget) (init-computed-prop widget thumb-sensor))
-    (run-visual-prop widget background-visual)
-    (run-visual-prop widget bar-visual)
-    (run-visual-prop widget thumb-visual)
+    (run-visual-prop widget background-visual #'scroll-widget-background-visual #'(setf scroll-widget-background-visual))
+    (run-visual-prop widget bar-visual #'scroll-widget-bar-visual #'(setf scroll-widget-bar-visual))
+    (run-visual-prop widget thumb-visual #'scroll-widget-thumb-visual #'(setf scroll-widget-thumb-visual))
     (setf (scroll-widget-scroll-sensitivity-computed widget)
       (init-computed-prop widget scroll-sensitivity))
     (when make-children (append-children ui widget make-children))
@@ -400,7 +400,7 @@
                     :max-thumb-length ,max-thumb-length
                     :focus-behavior-as-sibling ,focus-behavior-as-sibling
                     :focus-behavior-as-parent ,focus-behavior-as-parent
-                    :background-visual ,(make-visual-prop *ui* background-visual :let let :widget-visual 'scroll-widget-background-visual)
-                    :bar-visual ,(make-visual-prop *ui* bar-visual :let let :widget-visual 'scroll-widget-bar-visual)
-                    :thumb-visual ,(make-visual-prop *ui* thumb-visual :let let :widget-visual 'scroll-widget-thumb-visual)
+                    :background-visual ,(make-visual-prop *ui* background-visual :let let)
+                    :bar-visual ,(make-visual-prop *ui* bar-visual :let let)
+                    :thumb-visual ,(make-visual-prop *ui* thumb-visual :let let)
                     :thumb-sensor ,(make-computed-prop thumb-sensor :let let))))

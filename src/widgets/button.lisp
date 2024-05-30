@@ -62,7 +62,7 @@
               (and (eq :enter action)
                    (sdet:compute (widget-enabled-computed widget))
                    (funcall (button-widget-on-click widget))))))
-    (run-visual-prop widget visual)
+    (run-visual-prop widget visual #'button-widget-visual #'(setf button-widget-visual))
     (setf (widget-on-render-begin widget)
       (lambda (ui widget)
         (render-visual ui
@@ -89,5 +89,5 @@
                     :on-click ,(when on-click `(lambda () ,on-click))
                     :enabled ,(make-computed-prop enabled :let let)
                     :focus ,focus
-                    :visual ,(make-visual-prop *ui* visual :let let :widget-visual 'button-widget-visual)
+                    :visual ,(make-visual-prop *ui* visual :let let)
                     :sensor ,(make-computed-prop sensor :let let))))

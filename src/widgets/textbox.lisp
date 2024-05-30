@@ -49,8 +49,8 @@
     (initialize-widget ui widget :z-index z-index :position-type position-type :enabled enabled)
     (when set-layout (funcall set-layout widget))
     (when focus (set-keyboard-focus ui widget))
-    (run-visual-prop widget background-visual)
-    (run-visual-prop widget cursor-visual)
+    (run-visual-prop widget background-visual #'textbox-widget-background-visual #'(setf textbox-widget-background-visual))
+    (run-visual-prop widget cursor-visual #'textbox-widget-cursor-visual #'(setf textbox-widget-cursor-visual))
     (initialize-label ui
                       (textbox-widget-label widget)
                       :widget widget
@@ -187,5 +187,5 @@
                      :font ,(make-computed-prop font :let let)
                      :text-style ,(make-computed-prop text-style :let let)
                      :font-size ,(make-computed-prop font-size :let let)
-                     :background-visual ,(make-visual-prop *ui* background-visual :let let :widget-visual 'textbox-widget-background-visual)
-                     :cursor-visual ,(make-visual-prop *ui* cursor-visual :let let :widget-visual 'textbox-widget-cursor-visual))))
+                     :background-visual ,(make-visual-prop *ui* background-visual :let let)
+                     :cursor-visual ,(make-visual-prop *ui* cursor-visual :let let))))
