@@ -75,6 +75,9 @@
               (setf max-y (scroll-content-max-y child max-y))))
   max-y)
 
+(defun scroll-widget-bar-shown-p (widget)
+  (>= (scroll-widget-prev-scroll-length widget) 0.5d0))
+
 (defun w-scroll-impl (ui &key
                          set-layout
                          make-children
@@ -167,7 +170,8 @@
     (setf (widget-on-mouse-down-left widget)
       (lambda (ui widget x y other)
         (declare (ignore other))
-        (when (scroll-widget-mouse-event-aux ui widget x y)
+        (when (and (scroll-widget-bar-shown-p widget)
+                   (scroll-widget-mouse-event-aux ui widget x y))
               (own-mouse ui widget)
               (setf (scroll-widget-mouse-origin widget)
                 (ecase (scroll-widget-axis widget) (:x x) (:y y)))
@@ -188,7 +192,7 @@
         (multiple-value-bind (thumb-p bar-p mouse-pos thumb-pos bar-movable-length)
             (scroll-widget-mouse-event-aux ui widget x y)
           (declare (ignore thumb-p thumb-pos))
-          (when bar-p
+          (when (and bar-p (scroll-widget-bar-shown-p widget))
                 (own-mouse ui widget)
                 ;; Don't clamp offset: it will be clamped either
                 ;; after adjusting to new widget/content dimensions or
@@ -337,7 +341,7 @@
       (lambda (ui widget)
         (%blend2d:context-restore (layer-context (ui-temp-layer ui)) (cffi:null-pointer))
         (%blend2d:context-restore (layer-context (ui-temp-layer ui)) (cffi:null-pointer))
-        (when (>= (scroll-widget-prev-scroll-length widget) 0.5d0)
+        (when (scroll-widget-bar-shown-p widget)
               (let ((x (coerce (widget-yoga-x widget) 'double-float))
                     (y (coerce (widget-yoga-y widget) 'double-float))
                     (width (coerce (widget-width widget) 'double-float))
