@@ -22,6 +22,7 @@
           on-mouse-move on-mouse-scroll on-mouse-down-left on-mouse-down-middle on-mouse-down-right
           on-mouse-up-left on-mouse-up-middle on-mouse-up-right on-mouse-ownership-lost cursor
           on-key-action on-key-down on-key-up on-focus-recieved on-focus-lost on-text-input
+          on-drag-enter on-drag-leave on-drag-drop
           widget-hitp widget-on-render-begin widget-on-render-end widget-on-layout-changed
           widget-on-mouse-enter widget-on-mouse-leave widget-on-mouse-click-left
           widget-on-mouse-click-middle widget-on-mouse-click-right
@@ -29,7 +30,8 @@
           widget-on-mouse-down-middle widget-on-mouse-down-right widget-on-mouse-up-left
           widget-on-mouse-up-middle widget-on-mouse-up-right widget-on-mouse-ownership-lost widget-cursor
           widget-on-key-action widget-on-key-down widget-on-key-up widget-on-focus-recieved
-          widget-on-focus-lost widget-on-text-input))
+          widget-on-focus-lost widget-on-text-input
+          widget-on-drag-enter widget-on-drag-leave widget-on-drag-drop))
 (defstruct (widget (:include placeholder)
                    (:copier nil)
                    (:predicate widgetp)
@@ -86,6 +88,10 @@
   (on-focus-recieved nil :type (or null (function (ui widget) (values &optional))))
   (on-focus-lost nil :type (or null (function (ui widget) (values &optional))))
   (on-text-input nil :type (or null (function (ui widget string) (values boolean &optional))))
+  (on-drag-enter nil :type (or null (function (ui widget x y) (values boolean &optional))))
+  (on-drag-move nil :type (or null (function (ui widget x y) (values boolean &optional))))
+  (on-drag-leave nil :type (or null (function (ui widget) (values &optional))))
+  (on-drag-drop nil :type (or null (function (ui widget) (values boolean &optional))))
   (enabled-computed nil))
 
 (defun compute-widget-coordinates (ui widget yoga-offset-x yoga-offset-y layer-offset-x layer-offset-y)

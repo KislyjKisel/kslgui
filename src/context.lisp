@@ -31,7 +31,7 @@
   (key-to-action nil :type (or null (function (t) (values (or null key-action) &optional))))
   (fonts (make-hash-table) :type hash-table)
   (yoga-config (yogalayout:config-new) :type %yogalayout:config-ref :read-only t)
-  (mouse-owner nil :type (or null widget)) ; nil = all widgets recieve events when mouse is over them
+  (mouse-owner nil :type (or null widget))
   (cursor :default :type cursor)
   (cursor-layer nil :type (or null layer))
   (cursor-x 0.0 :type single-float)
@@ -46,7 +46,10 @@
   (temp-root nil :type (or null widget))
   (temp-layer nil :type (or null layer))
   (blend2d-rect-pool (make-array 0 :adjustable t :fill-pointer 0) :type vector)
-  (blend2d-point-pool (make-array 0 :adjustable t :fill-pointer 0) :type vector))
+  (blend2d-point-pool (make-array 0 :adjustable t :fill-pointer 0) :type vector)
+  (drag-value nil)
+  (drag-owner nil :type (or null widget))
+  (drag-on-drop nil :type (or null (function () (values &optional)))))
 
 (export 'destroy-ui)
 (declaim (ftype (function (ui) (values &optional)) destroy-ui))
@@ -250,6 +253,31 @@
 
 (define-pool-functions "BLEND2D-RECT" ui-blend2d-rect-pool (autowrap:alloc '%blend2d:rect) (x (autowrap:free x)))
 (define-pool-functions "BLEND2D-POINT" ui-blend2d-point-pool (autowrap:alloc '%blend2d:point) (x (autowrap:free x)))
+
+(export 'start-dragging)
+(defun start-dragging (ui value on-drop)
+  (assert (and (null (ui-drag-value ui))
+               (null (ui-drag-owner ui))))
+  (setf (ui-drag-value ui) value)
+  (setf (ui-drag-on-drop ui) on-drop)
+  (values))
+
+(export 'stop-dragging)
+(defun stop-dragging (ui)
+  (let ((owner (ui-drag-owner ui)))
+    (and owner ; last widget to hold dragged value
+         (widget-on-drag-drop owner) ; has drop callback
+         (funcall (widget-on-drag-drop owner) ui owner) ; callback returns true meaning "value taken"
+         (ui-drag-on-drop ui) ; value source provided "value taken" callback
+         (funcall (ui-drag-on-drop ui)) ; call it
+    ))
+  (setf (ui-drag-value ui) nil)
+  (setf (ui-drag-on-drop ui) nil)
+  (values))
+
+(export 'dragged-value)
+(defun dragged-value (ui)
+  (ui-drag-value ui))
 
 (export '*ui*)
 (eval-when (:compile-toplevel :load-toplevel :execute)
