@@ -1,6 +1,7 @@
 (in-package #:kslgui)
 
-(export '(window create-window window-layer))
+(export '(window create-window window-layer
+                 window-x window-y window-width window-height))
 (defstruct (window (:copier nil)
                    (:constructor create-window (layer width height)))
   (layer (unreachable) :type (or null layer))
