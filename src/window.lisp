@@ -3,7 +3,9 @@
 (export '(window create-window window-layer
                  window-x window-y window-width window-height))
 (defstruct (window (:copier nil)
-                   (:constructor create-window (layer width height)))
+                   (:constructor create-window (layer &key width height resize-to-contents-x resize-to-contents-y)))
+  (resize-to-contents-x nil :type boolean)
+  (resize-to-contents-y nil :type boolean)
   (layer (unreachable) :type (or null layer))
   (sdet-root (sdet:make-root) :type sdet:root :read-only t)
   (widget nil :type (or null widget))
