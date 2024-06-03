@@ -99,10 +99,10 @@
   (float-features:with-float-traps-masked (:invalid)
     (yogalayout:node-calculate-layout (widget-yoga-node (window-widget window))
                                       (if (window-resize-to-contents-x window)
-                                          float-features:single-float-positive-infinity
+                                          yogalayout:+undefined+
                                           (coerce (window-width window) 'single-float))
                                       (if (window-resize-to-contents-y window)
-                                          float-features:single-float-positive-infinity
+                                          yogalayout:+undefined+
                                           (coerce (window-height window) 'single-float))
                                       yogalayout:+direction-ltr+))
   (when (window-resize-to-contents-x window)
