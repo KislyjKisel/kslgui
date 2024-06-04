@@ -94,22 +94,43 @@
 (defun sdet-context (ui)
   (ui-sdet-context ui))
 
+(export 'get-font)
+(declaim
+  (inline get-font)
+  (ftype (function (ui symbol) (values (or null %blend2d:font-face-core) boolean &optional)) get-font))
+(defun get-font (ui key)
+  (gethash key (ui-fonts ui)))
+
 (export 'set-font)
-(declaim (ftype (function (ui symbol %blend2d:font-face-core) (values &optional)) set-font))
+(declaim
+  (inline set-font)
+  (ftype (function (ui symbol %blend2d:font-face-core) (values &optional)) set-font))
 (defun set-font (ui key font-face)
   (setf (gethash key (ui-fonts ui)) font-face)
   (values))
 
 (export 'remove-font)
-(declaim (ftype (function (ui symbol) (values %blend2d:font-face-core boolean &optional)) remove-font))
+(declaim
+  (inline remove-font)
+  (ftype (function (ui symbol) (values %blend2d:font-face-core boolean &optional)) remove-font))
 (defun remove-font (ui key)
   (multiple-value-bind (font present)
       (gethash key (ui-fonts ui))
     (remhash key (ui-fonts ui))
     (values font present)))
 
+(export 'map-fonts)
+(declaim
+  (inline map-fonts)
+  (ftype (function (ui (function (symbol %blend2d:font-face-core) (values &optional))) (values &optional)) map-fonts))
+(defun map-fonts (ui f)
+  (maphash f (ui-fonts ui))
+  (values))
+
 (export 'clear-fonts)
-(declaim (ftype (function (ui) (values &optional)) clear-fonts))
+(declaim
+  (inline clear-fonts)
+  (ftype (function (ui) (values &optional)) clear-fonts))
 (defun clear-fonts (ui)
   (clrhash (ui-fonts ui))
   (values))
