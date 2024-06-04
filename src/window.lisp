@@ -1,11 +1,13 @@
 (in-package #:kslgui)
 
 (export '(window create-window window-layer
-                 window-x window-y window-width window-height))
+                 window-x window-y window-width window-height
+                 window-manually-rendered))
 (defstruct (window (:copier nil)
-                   (:constructor create-window (layer &key width height resize-to-contents-x resize-to-contents-y)))
+                   (:constructor create-window (layer &key width height resize-to-contents-x resize-to-contents-y manually-rendered)))
   (resize-to-contents-x nil :type boolean)
   (resize-to-contents-y nil :type boolean)
+  (manually-rendered nil :type boolean)
   (layer (unreachable) :type (or null layer))
   (sdet-root (sdet:make-root) :type sdet:root :read-only t)
   (widget nil :type (or null widget))
