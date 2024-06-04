@@ -128,7 +128,7 @@
            ((scroll-widget-mouse-origin widget)
              (ecase (scroll-widget-axis widget) (:x :move-x) (:y :move-y)))
            (thumb-p :grab)
-           (bar-p (if (= +active-mouse-button-left+ (funcall (widget-get-mouse-active-p widget)))
+           (bar-p (if (= +active-mouse-button-left+ (funcall (widget-get-mouse-active widget)))
                       :release
                       :press))
            (t nil)))))

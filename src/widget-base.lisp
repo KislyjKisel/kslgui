@@ -31,7 +31,8 @@
           widget-on-mouse-up-middle widget-on-mouse-up-right widget-on-mouse-ownership-lost widget-cursor
           widget-on-key-action widget-on-key-down widget-on-key-up widget-on-focus-recieved
           widget-on-focus-lost widget-on-text-input
-          widget-on-drag-enter widget-on-drag-leave widget-on-drag-drop))
+          widget-on-drag-enter widget-on-drag-leave widget-on-drag-drop
+          widget-get-mouse-hover widget-get-mouse-active widget-enabled-computed))
 (defstruct (widget (:include placeholder)
                    (:copier nil)
                    (:predicate widgetp)
@@ -59,10 +60,10 @@
   (on-render-end nil :type (or null (function (ui widget) (values &optional))))
   (on-layout-changed nil :type (or null (function (ui widget) (values &optional))))
   (hitp nil :type (or null (function (ui widget single-float single-float) (values boolean &optional)))) ; nil = test if mouse is inside yoga layout rectangle
-  (get-mouse-hover-p nil) ; todo: lazy init? (note: may be used without mouse enter/leave handlers present)
-  (set-mouse-hover-p nil)
-  (get-mouse-active-p nil) ; bitmask
-  (set-mouse-active-p nil)
+  (get-mouse-hover nil) ; todo: lazy init? (note: may be used without mouse enter/leave handlers present)
+  (set-mouse-hover nil)
+  (get-mouse-active nil) ; bitmask
+  (set-mouse-active nil)
   (on-mouse-enter nil :type (or null (function (ui widget single-float single-float t) (values &optional))))
   (on-mouse-leave nil :type (or null (function (ui widget single-float single-float t) (values &optional))))
   (on-mouse-click-left nil :type (or null (function (ui widget single-float single-float t) (values boolean &optional))))

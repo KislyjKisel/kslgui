@@ -128,11 +128,11 @@
       (setf (widget-subscribe-layout-changed widget) subscribe)
       (setf (widget-notify-layout-changed widget) notify))
     (multiple-value-bind (get set) (sdet:make-state (ui-sdet-context ui) nil)
-      (setf (widget-get-mouse-hover-p widget) get)
-      (setf (widget-set-mouse-hover-p widget) set))
+      (setf (widget-get-mouse-hover widget) get)
+      (setf (widget-set-mouse-hover widget) set))
     (multiple-value-bind (get set) (sdet:make-state (ui-sdet-context ui) (the (unsigned-byte 3) 0))
-      (setf (widget-get-mouse-active-p widget) get)
-      (setf (widget-set-mouse-active-p widget) set)))
+      (setf (widget-get-mouse-active widget) get)
+      (setf (widget-set-mouse-active widget) set)))
   (values))
 
 (export 'destroy-widget)
@@ -211,11 +211,11 @@
        (if tag-known-p
            tag-form
            (case form
-             (:hover `(funcall (widget-get-mouse-hover-p ,widget-sym)))
-             (:active `(< 0 (funcall (widget-get-mouse-active-p ,widget-sym))))
-             (:active-left `(< 0 (logand +active-mouse-button-left+ (funcall (widget-get-mouse-active-p ,widget-sym)))))
-             (:active-middle `(< 0 (logand +active-mouse-button-middle+ (funcall (widget-get-mouse-active-p ,widget-sym)))))
-             (:active-right `(< 0 (logand +active-mouse-button-right+ (funcall (widget-get-mouse-active-p ,widget-sym)))))
+             (:hover `(funcall (widget-get-mouse-hover ,widget-sym)))
+             (:active `(< 0 (funcall (widget-get-mouse-active ,widget-sym))))
+             (:active-left `(< 0 (logand +active-mouse-button-left+ (funcall (widget-get-mouse-active ,widget-sym)))))
+             (:active-middle `(< 0 (logand +active-mouse-button-middle+ (funcall (widget-get-mouse-active ,widget-sym)))))
+             (:active-right `(< 0 (logand +active-mouse-button-right+ (funcall (widget-get-mouse-active ,widget-sym)))))
              (:focus `(eq ,widget-sym (keyboard-focus ,ui)))
              (:enabled `(sdet:compute (widget-enabled-computed ,widget-sym)))
              (:disabled `(not (sdet:compute (widget-enabled-computed ,widget-sym))))

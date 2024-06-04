@@ -33,7 +33,7 @@
     (setf (widget-cursor widget)
       (lambda (ui widget x y)
         (declare (ignore ui x y))
-        (if (and (= +active-mouse-button-left+ (funcall (widget-get-mouse-active-p widget)))
+        (if (and (= +active-mouse-button-left+ (funcall (widget-get-mouse-active widget)))
                  (sdet:compute (widget-enabled-computed widget)))
             :release
             :press)))
