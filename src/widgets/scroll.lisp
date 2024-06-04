@@ -4,7 +4,7 @@
                           (:copier nil)
                           (:constructor make-scroll-widget (axis
                                                             &aux
-                                                            (hitp #'default-widget-hit-p)
+                                                            (hitp #'default-widget-hitp)
                                                             (force-isolated-rendering t)
                                                             (children-mouse-events-clip (make-aabb)))))
   (axis :x :type (member :x :y)) ; todo: both?
