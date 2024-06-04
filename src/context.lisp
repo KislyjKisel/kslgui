@@ -283,16 +283,15 @@
 
 (export 'stop-dragging)
 (defun stop-dragging (ui)
-  (let ((owner (ui-drag-owner ui)))
-    (and owner ; last widget to hold dragged value
-         (widget-on-drag-drop owner) ; has drop callback
-         (funcall (widget-on-drag-drop owner) ui owner) ; callback returns true meaning "value taken"
-         (ui-drag-on-drop ui) ; value source provided "value taken" callback
-         (funcall (ui-drag-on-drop ui)) ; call it
-    ))
-  (setf (ui-drag-value ui) nil)
-  (setf (ui-drag-on-drop ui) nil)
-  (values))
+  (let* ((owner (ui-drag-owner ui))
+         (value-taken (and owner
+                           (widget-on-drag-drop owner)
+                           (funcall (widget-on-drag-drop owner) ui owner))))
+    (when (and value-taken (ui-drag-on-drop ui))
+          (funcall (ui-drag-on-drop ui)))
+    (setf (ui-drag-value ui) nil)
+    (setf (ui-drag-on-drop ui) nil)
+    value-taken))
 
 (export 'dragged-value)
 (defun dragged-value (ui)
