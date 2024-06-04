@@ -196,11 +196,7 @@
 (declaim (ftype (function (ui window (or null layer)) (values &optional)) set-window-layer))
 (defun set-window-layer (ui window layer)
   (when (window-layer window)
-        (multiple-value-bind (windows present)
-            (gethash (window-layer window) (ui-windows ui))
-          (unless present
-            (error "Window with layer assigned not found in context."))
-          (setf (gethash (window-layer window) (ui-windows ui)) (vector-delete window windows))))
+        (delete-window ui window))
   (setf (window-layer window) layer)
   (when layer
         (insert-window ui window))
