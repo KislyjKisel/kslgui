@@ -110,6 +110,12 @@
       (:y (setf (widget-focus-behavior-as-parent-x widget) focus-behavior-as-parent)
           (setf (widget-focus-behavior-as-parent-y widget) :contain-if-any)))
     (initialize-widget ui widget :z-index z-index :position-type position-type)
+    (sdet:on-cleanup (sdet-context ui)
+      (destroy-visual (scroll-widget-background-visual widget))
+      (destroy-visual (scroll-widget-bar-visual widget))
+      (destroy-visual (scroll-widget-thumb-visual widget))
+      (destroy-widget widget)
+      (values))
     (when set-layout (funcall set-layout widget))
     (yogalayout:node-style-set-overflow (widget-yoga-node widget) yogalayout:+overflow-scroll+)
     (setf (scroll-widget-thumb-sensor widget) (init-computed-prop widget thumb-sensor))
@@ -364,12 +370,7 @@
                         (render-visual ui bar-visual bar-x y bar-width height)
                         (render-visual ui thumb-visual (+ bar-x thumb-bar-offset) thumb-y thumb-width thumb-length))))))
         (values)))
-    (lambda ()
-      (destroy-visual (scroll-widget-background-visual widget))
-      (destroy-visual (scroll-widget-bar-visual widget))
-      (destroy-visual (scroll-widget-thumb-visual widget))
-      (destroy-widget widget)
-      (values))))
+    (values)))
 
 (export 'w-scroll)
 (defmacro w-scroll (layout (&key ui let z-index position-type
@@ -387,7 +388,7 @@
   (macroexpand-with-ui* ui
     `(w-scroll-impl ,*ui*
                     :set-layout ,(make-layout-setting-lambda *ui* layout)
-                    :make-children ,(make-children-making-lambda *ui* children :let let)
+                    :make-children ,(make-children-making-lambda children :let let)
                     :z-index ,(make-computed-prop z-index :let let)
                     :position-type ,(make-computed-prop position-type :let let)
                     :axis ,axis

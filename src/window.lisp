@@ -62,7 +62,7 @@
            (setf (ui-temp-yoga-index ,ui) 0)
            (sdet:clean-root (window-sdet-root ,window))
            (sdet:with-root (ui-sdet-context ,ui) (window-sdet-root ,window)
-             (sdet:make-effect (ui-sdet-context ,ui) ,widget-tree))
+             ,widget-tree)
            (setf (window-widget ,window) (ui-temp-root ,ui))
            (setf (ui-temp-parent ,ui) ,previous-parent)
            (setf (ui-temp-layer ,ui) ,previous-layer)

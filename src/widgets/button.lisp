@@ -27,6 +27,10 @@
                          visual sensor)
   (let ((widget (make-button-widget on-click)))
     (initialize-widget ui widget :z-index z-index :position-type position-type :enabled enabled)
+    (sdet:on-cleanup (sdet-context ui)
+      (destroy-visual (button-widget-visual widget))
+      (destroy-widget widget)
+      (values))
     (when set-layout (funcall set-layout widget))
     (when focus (set-keyboard-focus ui widget))
     (setf (button-widget-sensor widget) (init-computed-prop widget sensor))
@@ -72,10 +76,7 @@
                        (coerce (widget-width widget) 'double-float)
                        (coerce (widget-height widget) 'double-float))
         (values)))
-    (lambda ()
-      (destroy-visual (button-widget-visual widget))
-      (destroy-widget widget)
-      (values))))
+    (values)))
 
 (export 'w-button)
 (defmacro w-button (&key ui layout let z-index position-type

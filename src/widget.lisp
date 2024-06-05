@@ -123,7 +123,7 @@
             (setf (widget-rendering-order-cache widget) nil)
             (setf (widget-rendering-order-cache widget) (make-array 0 :adjustable t :fill-pointer 0)))
         (widget-rendering-order-changed widget))
-      nil)
+      (values))
     (multiple-value-bind (subscribe notify) (sdet:make-notifier (ui-sdet-context ui))
       (setf (widget-subscribe-layout-changed widget) subscribe)
       (setf (widget-notify-layout-changed widget) notify))
@@ -174,7 +174,8 @@
                    (if st-set-sym
                        `(,st-set-sym (widget-yoga-node ,widget-sym) ,@(rest stp))
                        (error "Unknown Yoga layout setter: ~a." (first stp)))))
-           layout)))
+           layout)
+     (values)))
 
 (export 'make-layout-setting-lambda)
 (defun make-layout-setting-lambda (ui layout)
@@ -187,16 +188,13 @@
           ,(make-layout-setting-code ui layout widget))))))
 
 (export 'make-children-making-lambda)
-(defun make-children-making-lambda (ui children &key let)
+(defun make-children-making-lambda (children &key let)
   (if children
       (let ((widget (or let (gensym))))
         `(lambda (,widget)
-           (declare (ignorable ,widget))
-           ,@(mapcar (lambda (child)
-                       (cond
-                        ((and (consp child) (eq 'quote (first child))) (second child))
-                        (t `(sdet:make-effect (ui-sdet-context ,ui) ,child))))
-                 children)))
+           (declare (ignore ,@(unless let (list widget))))
+           ,@children
+           (values)))
       'nil))
 
 (defun wsd.test (ui tags widget-sym form)
@@ -267,7 +265,7 @@
                      (funcall ,visual-state-setter
                        (update-visual (sdet:compute ,vdescr-item-computed) (funcall ,visual-state-getter ,widget))
                        ,widget)
-                     nil))
+                     (values)))
                 (let ((forms '()))
                   (loop #:for index #:from 0
                         #:for vdescr-item #:in vdescr
@@ -276,7 +274,7 @@
                                               (sdet:make-effect (ui-sdet-context ,ui)
                                                 (setf (aref (funcall ,visual-state-getter ,widget) ,index)
                                                   (update-visual (sdet:compute ,vdescr-item-computed) (aref (funcall ,visual-state-getter ,widget) ,index)))
-                                                nil))
+                                                (values)))
                                            forms)))
                   `(progn
                     (funcall ,visual-state-setter (make-array ,(length vdescr) :initial-element nil) ,widget)

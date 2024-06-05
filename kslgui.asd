@@ -28,9 +28,7 @@
                              (:file "path")))
                (:module "widgets"
                 :components ((:file "block")
-                             (:file "fragment")
                              (:file "dynamic")
-                             (:file "cond")
                              (:file "map-fix-index")
                              (:file "visual")
                              (:file "label")

@@ -19,6 +19,10 @@
                                     focus-behavior-as-parent-x
                                     focus-behavior-as-parent-y)))
     (initialize-widget ui widget :z-index z-index :position-type position-type)
+    (sdet:on-cleanup (sdet-context ui)
+      (destroy-visual (visual-widget-visual widget))
+      (destroy-widget widget)
+      (values))
     (run-visual-prop widget visual #'visual-widget-visual #'(setf visual-widget-visual))
     (when set-layout (funcall set-layout widget))
     (when make-children (append-children ui widget make-children))
@@ -31,10 +35,7 @@
                        (coerce (widget-width widget) 'double-float)
                        (coerce (widget-height widget) 'double-float))
         (values)))
-    (lambda ()
-      (destroy-visual (visual-widget-visual widget))
-      (destroy-widget widget)
-      (values))))
+    (values)))
 
 (export 'w-visual)
 (defmacro w-visual (visual (&key ui layout let z-index position-type
@@ -45,7 +46,7 @@
   (macroexpand-with-ui* ui
     `(w-visual-impl ,*ui*
                     :set-layout ,(make-layout-setting-lambda *ui* layout)
-                    :make-children ,(make-children-making-lambda *ui* children :let let)
+                    :make-children ,(make-children-making-lambda children :let let)
                     :z-index ,(make-computed-prop z-index :let let)
                     :position-type ,(make-computed-prop position-type :let let)
                     :focus-behavior-as-sibling ,focus-behavior-as-sibling
