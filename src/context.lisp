@@ -227,6 +227,11 @@
   (setf (ui-cursor-renderer ui) renderer)
   (values))
 
+(export 'cursor)
+(declaim (ftype (function (ui) (values cursor &optional)) cursor))
+(defun cursor (ui)
+  (ui-cursor ui))
+
 (export 'set-key-to-character)
 (declaim (ftype (function (ui (or null (function (t) (or null character)))) (values &optional)) set-key-to-character))
 (defun set-key-to-character (ui key-to-character)
