@@ -228,7 +228,9 @@
   (values))
 
 (export 'cursor)
-(declaim (ftype (function (ui) (values cursor &optional)) cursor))
+(declaim
+  (inline cursor)
+  (ftype (function (ui) (values cursor &optional)) cursor))
 (defun cursor (ui)
   (ui-cursor ui))
 
@@ -245,12 +247,16 @@
   (values))
 
 (export 'current-layer)
-(declaim (ftype (function (ui) (values (or null layer) &optional)) current-layer))
+(declaim
+  (inline current-layer)
+  (ftype (function (ui) (values (or null layer) &optional)) current-layer))
 (defun current-layer (ui)
   (ui-temp-layer ui))
 
 (export 'focused-window)
-(declaim (ftype (function (ui) (values (or null window) &optional)) focused-window))
+(declaim
+  (inline focused-window)
+  (ftype (function (ui) (values (or null window) &optional)) focused-window))
 (defun focused-window (ui)
   (ui-focused-window ui))
 
