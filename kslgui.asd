@@ -24,8 +24,9 @@
                (:file "directional-navigation")
                (:file "widget")
                (:module "visuals"
-                :components ((:file "rectangle")
-                             (:file "path")))
+                :components ((:file "lambda")
+                             (:file "path")
+                             (:file "rectangle")))
                (:module "widgets"
                 :components ((:file "block")
                              (:file "dynamic")
