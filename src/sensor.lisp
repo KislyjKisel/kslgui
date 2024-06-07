@@ -51,7 +51,7 @@
        (< mx (+ x w))
        (< my (+ y h))))
 
-(export 'make-rectangle-sensor)
+(export 's-rectangle)
 (defstruct (rectangle-sensor (:include sensor)
                              (:copier nil)
-                             (:constructor make-rectangle-sensor (&aux (hitp #'rectangle-sensor-hitp-impl)))))
+                             (:constructor s-rectangle (&aux (hitp #'rectangle-sensor-hitp-impl)))))
