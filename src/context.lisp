@@ -174,7 +174,16 @@
       (setf windows
         (setf (gethash (window-layer window) (ui-windows ui))
           (make-array 0 :adjustable t :fill-pointer 0))))
-    (vector-push-extend window windows))
+    (let ((inserted nil)
+          (z-index (window-z-index window)))
+      (loop #:for index #:below (length windows)
+            #:do
+            (when (< z-index (window-z-index (aref windows index)))
+                  (vector-insert windows window index)
+                  (setf inserted t)
+                  (return)))
+      (unless inserted
+        (vector-push-extend window windows))))
   (values))
 
 (export 'delete-window)

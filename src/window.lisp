@@ -4,10 +4,11 @@
                  window-x window-y window-width window-height
                  window-manually-rendered))
 (defstruct (window (:copier nil)
-                   (:constructor create-window (layer &key width height resize-to-contents-x resize-to-contents-y manually-rendered)))
+                   (:constructor create-window (layer &key width height resize-to-contents-x resize-to-contents-y manually-rendered (z-index 0))))
   (resize-to-contents-x nil :type boolean)
   (resize-to-contents-y nil :type boolean)
   (manually-rendered nil :type boolean)
+  (z-index (unreachable) :type fixnum)
   (layer (unreachable) :type (or null layer))
   (sdet-root (sdet:make-root) :type sdet:root :read-only t)
   (widget nil :type (or null widget))

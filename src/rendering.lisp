@@ -164,7 +164,8 @@
                (when (layer-dirty layer)
                      (when clear
                            (%blend2d:context-clear-all (layer-context layer)))
-                     (loop #:for window #:across windows
+                     (loop #:for index #:from (1- (length windows)) #:downto 0
+                           #:for window = (aref windows index)
                            #:do
                            (unless (window-manually-rendered window)
                              (render-window-impl ui window clip-rect translate-point)))

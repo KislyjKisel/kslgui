@@ -49,7 +49,8 @@
       (gethash layer (ui-windows ui))
     (unless present
       (return-from traverse-ui-with-mouse nil))
-    (loop #:for window #:across windows
+    (loop #:for index #:from (1- (length windows)) #:downto 0
+          #:for window = (aref windows index)
           #:do (when (and (window-widget window)
                           (traverse-widget-with-mouse-rec ui (window-widget window) x y f))
                      (return-from traverse-ui-with-mouse t))))
@@ -74,9 +75,9 @@
                                                              (ui-cursor-x ui)
                                                              (ui-cursor-y ui)))
                                           (let ((cursor
-                                                 (if (functionp (widget-cursor widget))
-                                                     (funcall (widget-cursor widget) ui widget (ui-cursor-x ui) (ui-cursor-y ui))
-                                                     (widget-cursor widget))))
+                                                  (if (functionp (widget-cursor widget))
+                                                      (funcall (widget-cursor widget) ui widget (ui-cursor-x ui) (ui-cursor-y ui))
+                                                      (widget-cursor widget))))
                                             (when cursor
                                                   (setf (ui-cursor ui) cursor)
                                                   t)))))
