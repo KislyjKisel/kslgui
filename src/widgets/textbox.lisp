@@ -18,7 +18,11 @@
   (cursor-visual nil)
   (cursor-index 0 :type fixnum)
   (cursor-x 0.0d0 :type double-float)
-  (cursor-h 0.0d0 :type double-float))
+  (cursor-h 0.0d0 :type double-float)
+  (padding-left)
+  (padding-right)
+  (padding-top)
+  (padding-bottom))
 
 (defun textbox-widget-clamped-cursor-index (widget)
   (max 0
@@ -36,7 +40,9 @@
                   (subseq (label-text label)
                           0
                           (textbox-widget-clamped-cursor-index widget)))
-    (setf (textbox-widget-cursor-x widget) (%blend2d:text-metrics.advance.x text-metrics))))
+    (setf (textbox-widget-cursor-x widget)
+      (+ (coerce (sdet:compute (textbox-widget-padding-left widget)) 'double-float)
+         (%blend2d:text-metrics.advance.x text-metrics)))))
 
 (defun w-textbox-impl (ui &key
                           set-layout
@@ -44,7 +50,8 @@
                           text font font-size text-style
                           on-changed on-enter
                           background-visual
-                          cursor-visual)
+                          cursor-visual
+                          padding-left padding-right padding-top padding-bottom)
   (let ((widget (make-textbox-widget (make-label*) on-changed on-enter)))
     (initialize-widget ui widget :z-index z-index :position-type position-type :enabled enabled)
     (sdet:on-cleanup (sdet-context ui)
@@ -53,6 +60,10 @@
       (destroy-visual (textbox-widget-cursor-visual widget))
       (destroy-widget widget)
       (values))
+    (setf (textbox-widget-padding-left widget) (init-computed-prop widget padding-left))
+    (setf (textbox-widget-padding-right widget) (init-computed-prop widget padding-right))
+    (setf (textbox-widget-padding-top widget) (init-computed-prop widget padding-top))
+    (setf (textbox-widget-padding-bottom widget) (init-computed-prop widget padding-bottom))
     (when set-layout (funcall set-layout widget))
     (when focus (set-keyboard-focus ui widget))
     (run-visual-prop widget background-visual #'textbox-widget-background-visual #'(setf textbox-widget-background-visual))
@@ -146,15 +157,21 @@
     (setf (widget-on-render-begin widget)
       (lambda (ui widget)
         (render-visual ui (textbox-widget-background-visual widget)
-                       (coerce (widget-yoga-x widget) 'double-float)
+                       (coerce (widget-yoga-x widget) 'double-float) ; todo... + initialize and COMPUTE! and put into structure
                        (coerce (widget-yoga-y widget) 'double-float)
                        (coerce (widget-width widget) 'double-float)
                        (coerce (widget-height widget) 'double-float))
         (render-label ui
-                      (coerce (widget-yoga-x widget) 'double-float)
-                      (coerce (widget-yoga-y widget) 'double-float)
-                      (widget-width widget)
-                      (widget-height widget)
+                      (coerce (+ (sdet:compute (textbox-widget-padding-left widget))
+                                 (widget-yoga-x widget))
+                              'double-float)
+                      (coerce (+ (sdet:compute (textbox-widget-padding-top widget))
+                                 (widget-yoga-y widget))
+                              'double-float)
+                      (- (widget-width widget)
+                         (coerce (sdet:compute (textbox-widget-padding-right widget)) 'single-float))
+                      (- (widget-height widget)
+                         (coerce (sdet:compute (textbox-widget-padding-bottom widget)) 'single-float))
                       (textbox-widget-label widget))
         (when (and (eq widget (sdet:unobserved (ui-sdet-context ui) (funcall (ui-get-keyboard-focus ui))))
                    ;  (< (* 0.5d0 *textbox-cursor-blink-period*)
@@ -174,7 +191,12 @@
 (defmacro w-textbox (&key ui layout let z-index position-type
                           on-enter on-changed (enabled t) focus
                           background-visual cursor-visual
-                          text font font-size text-style)
+                          text font font-size text-style
+                          (padding 0.0d0)
+                          (padding-left nil)
+                          (padding-right nil)
+                          (padding-top nil)
+                          (padding-bottom nil))
   (macroexpand-with-ui* ui
     `(w-textbox-impl ,*ui*
                      :set-layout ,(make-layout-setting-lambda *ui* layout)
@@ -189,4 +211,8 @@
                      :text-style ,(make-computed-prop text-style :let let)
                      :font-size ,(make-computed-prop font-size :let let)
                      :background-visual ,(make-visual-prop *ui* background-visual :let let)
-                     :cursor-visual ,(make-visual-prop *ui* cursor-visual :let let))))
+                     :cursor-visual ,(make-visual-prop *ui* cursor-visual :let let)
+                     :padding-left ,(make-computed-prop (or padding-left padding) :let let)
+                     :padding-right ,(make-computed-prop (or padding-right padding) :let let)
+                     :padding-top ,(make-computed-prop (or padding-top padding) :let let)
+                     :padding-bottom ,(make-computed-prop (or padding-bottom padding) :let let))))
