@@ -26,6 +26,7 @@
                (:module "visuals"
                 :components ((:file "utils")
                              (:file "lambda")
+                             (:file "vector")
                              (:file "path")
                              (:file "rectangle")))
                (:module "widgets"
