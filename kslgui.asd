@@ -36,4 +36,5 @@
                              (:file "label")
                              (:file "scroll")
                              (:file "button")
-                             (:file "textbox")))))
+                             (:file "textbox")
+                             (:file "two-pane")))))
