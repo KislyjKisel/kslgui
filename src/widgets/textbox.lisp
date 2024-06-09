@@ -202,7 +202,7 @@
                      :set-layout ,(make-layout-setting-lambda *ui* layout)
                      :z-index ,(make-computed-prop z-index :let let)
                      :position-type ,(make-computed-prop position-type :let let)
-                     :on-enter ,(when on-enter `(lambda () ,on-enter))
+                     :on-enter ,(make-callback-prop on-enter)
                      :on-changed ,(when on-changed `(lambda (,(car on-changed)) ,@(cdr on-changed)))
                      :enabled ,(make-computed-prop enabled :let let)
                      :focus ,focus

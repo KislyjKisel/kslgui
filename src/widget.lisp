@@ -248,6 +248,26 @@
       (funcall x widget)
       x))
 
+(export 'make-callback-prop)
+(defun make-callback-prop (x &key (parameter-count 0))
+  (etypecase x
+    (null 'nil)
+    (cons
+      (cond
+       ((eq 'quote (first x)) (second x))
+       ((eq 'lambda (first x)) x)
+       (t (let ((parameters ())
+                (ignored ()))
+            (loop #:for parameter #:in (subseq x 0 parameter-count)
+                  #:do
+                  (unless parameter
+                    (setf parameter (gensym))
+                    (push parameter ignored))
+                  (push parameter parameters))
+            `(lambda ,(reverse parameters)
+               (declare (ignored ,ignored))
+               ,@(subseq x parameter-count))))))))
+
 (export 'make-visual-prop)
 (defun make-visual-prop (ui vdescr &key let)
   (let ((widget (or let (gensym)))

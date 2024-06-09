@@ -87,7 +87,7 @@
                     :set-layout ,(make-layout-setting-lambda *ui* layout)
                     :z-index ,(make-computed-prop z-index :let let)
                     :position-type ,(make-computed-prop position-type :let let)
-                    :on-click ,(when on-click `(lambda () ,on-click))
+                    :on-click ,(make-callback-prop on-click)
                     :enabled ,(make-computed-prop enabled :let let)
                     :focus ,focus
                     :visual ,(make-visual-prop *ui* visual :let let)
