@@ -265,7 +265,7 @@
                     (push parameter ignored))
                   (push parameter parameters))
             `(lambda ,(reverse parameters)
-               (declare (ignored ,ignored))
+               (declare (ignore ,@ignored))
                ,@(subseq x parameter-count))))))))
 
 (export 'make-visual-prop)
