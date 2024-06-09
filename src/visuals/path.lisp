@@ -2,12 +2,41 @@
 
 (export 'v-path)
 (defstruct (path-visual-description (:include shape-visual-description)
-                                    (:constructor v-path
+                                    (:constructor v-path*
                                                   (path-fn &key fill-rule fill-style border-style border-width
                                                            &aux (update #'path-visual-description-update-impl)))
                                     (:copier nil))
   (fill-rule %blend2d:+fill-rule-non-zero+ :type (unsigned-byte 32))
   (path-fn))
+
+(export 'v-path)
+(defun v-path (nxs nys
+                   &key
+                   (fill-style nil)
+                   (border-style nil)
+                   (border-width nil)
+                   (fill-rule %blend2d:+fill-rule-non-zero+)
+                   (close t))
+  (v-path* (lambda (path width height)
+             (let ((first-x nil)
+                   (first-y nil))
+               (loop #:for nx #:across nxs
+                     #:for ny #:across nys
+                     #:for nx-df = (coerce nx 'double-float)
+                     #:for ny-df = (coerce ny 'double-float)
+                     #:do
+                     (if (null first-x)
+                         (progn
+                          (setf first-x (* nx-df width) first-y (* ny-df height))
+                          (%blend2d:path-move-to path first-x first-y))
+                         (%blend2d:path-line-to path (* nx-df width) (* ny-df height))))
+               (when (and close first-x)
+                     (%blend2d:path-line-to path first-x first-y)))
+             (values))
+           :fill-style fill-style
+           :border-style border-style
+           :border-width border-width
+           :fill-rule fill-rule))
 
 (defstruct (path-visual-state (:include shape-visual-state)
                               (:constructor make-path-visual-state
@@ -90,14 +119,8 @@
 
 (export 'v-checkmark)
 (defun v-checkmark (&key fill-style border-style border-width)
-  (v-path (lambda (path width height)
-            (%blend2d:path-move-to path (* 0.17d0 width) (* 0.45d0 height))
-            (%blend2d:path-line-to path (* 0.32d0 width) (* 0.67d0 height))
-            (%blend2d:path-line-to path (* 0.82d0 width) (* 0.1d0 height))
-            (%blend2d:path-line-to path (* 0.92d0 width) (* 0.2d0 height))
-            (%blend2d:path-line-to path (* 0.32d0 width) (* 0.84d0 height))
-            (%blend2d:path-line-to path (* 0.07d0 width) (* 0.55d0 height))
-            (%blend2d:path-line-to path (* 0.17d0 width) (* 0.45d0 height)))
+  (v-path #(0.17 0.32 0.82 0.92 0.32 0.07 0.17)
+          #(0.45 0.67 0.10 0.20 0.84 0.55 0.45)
           :fill-style fill-style
           :border-style border-style
           :border-width border-width))
