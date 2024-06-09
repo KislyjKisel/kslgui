@@ -22,14 +22,18 @@
                    (first-y nil))
                (loop #:for nx #:across nxs
                      #:for ny #:across nys
-                     #:for nx-df = (coerce nx 'double-float)
-                     #:for ny-df = (coerce ny 'double-float)
                      #:do
-                     (if (null first-x)
-                         (progn
-                          (setf first-x (* nx-df width) first-y (* ny-df height))
-                          (%blend2d:path-move-to path first-x first-y))
-                         (%blend2d:path-line-to path (* nx-df width) (* ny-df height))))
+                     (when (null nx)
+                           (when (and close first-x)
+                                 (%blend2d:path-line-to path first-x first-y))
+                           (setf first-x nil first-y nil))
+                     (let ((nx-df (coerce nx 'double-float))
+                           (ny-df (coerce ny 'double-float)))
+                       (if (null first-x)
+                           (progn
+                            (setf first-x (* nx-df width) first-y (* ny-df height))
+                            (%blend2d:path-move-to path first-x first-y))
+                           (%blend2d:path-line-to path (* nx-df width) (* ny-df height)))))
                (when (and close first-x)
                      (%blend2d:path-line-to path first-x first-y)))
              (values))

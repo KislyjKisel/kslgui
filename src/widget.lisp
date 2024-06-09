@@ -273,7 +273,8 @@
   (let ((widget (or let (gensym)))
         (visual-state-getter (gensym))
         (visual-state-setter (gensym))
-        (vdescr-item-computed (gensym)))
+        (vdescr-item-computed (gensym))
+        (vstate-vector (gensym)))
     (cond
      ((null vdescr) 'nil)
      ((and (consp vdescr) (eq 'quote (first vdescr))) (second vdescr))
@@ -292,8 +293,9 @@
                         #:do (setf forms (cons
                                            `(let ((,vdescr-item-computed (lambda () ,vdescr-item)))
                                               (sdet:make-effect (ui-sdet-context ,ui)
-                                                (setf (aref (funcall ,visual-state-getter ,widget) ,index)
-                                                  (update-visual (sdet:compute ,vdescr-item-computed) (aref (funcall ,visual-state-getter ,widget) ,index)))
+                                                (let ((,vstate-vector (funcall ,visual-state-getter ,widget)))
+                                                  (setf (aref ,vstate-vector ,index)
+                                                    (update-visual (sdet:compute ,vdescr-item-computed) (aref ,vstate-vector ,index))))
                                                 (values)))
                                            forms)))
                   `(progn
