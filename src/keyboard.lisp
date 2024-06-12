@@ -40,60 +40,59 @@
   (values))
 
 (export 'emit-key-down)
-(declaim (ftype (function (ui t &key (:layer layer)) (values &optional)) emit-key-down))
-(defun emit-key-down (ui key &key layer)
+(declaim (ftype (function (ui (or null key-action character) key-modifier t &key (:layer layer)) (values &optional)) emit-key-down))
+(defun emit-key-down (ui keyval keymod key &key layer)
   (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui)))
-        (focused-windows (gethash layer (ui-focused-windows ui)))
-        (action (and (ui-key-to-action ui) (funcall (ui-key-to-action ui) key)))
-        (keymod (or (and (ui-key-to-mod ui) (funcall (ui-key-to-mod ui) key)) 0)))
-    (if action
+        (focused-windows (gethash layer (ui-focused-windows ui))))
+    (if (and (symbolp keyval) (not (null keyval)))
         (or (when (and kb-focus (widget-on-key-action kb-focus))
                   (setf (layer-dirty (widget-layer ui kb-focus)) t)
-                  (funcall (widget-on-key-action kb-focus) ui kb-focus key keymod action))
+                  (funcall (widget-on-key-action kb-focus) ui kb-focus keyval keymod key))
             (when focused-windows
                   (setf (layer-dirty layer) t)
                   (loop #:for window #:across focused-windows
                         #:do
                         (when (and (window-on-key-action window)
-                                   (funcall (window-on-key-action window) ui window key keymod action))
+                                   (funcall (window-on-key-action window) ui window keyval keymod key))
                               (return))))
             (cond
-             ((and kb-focus (or (eq action :up)
-                                (eq action :down)
-                                (eq action :left)
-                                (eq action :right)))
-               (let ((new-focus (directional-navigation ui kb-focus action)))
+             ((and kb-focus (or (eq keyval :up)
+                                (eq keyval :down)
+                                (eq keyval :left)
+                                (eq keyval :right)))
+               (let ((new-focus (directional-navigation ui kb-focus keyval)))
                  (when new-focus
-                       (scroll-after-focus-changed ui action new-focus)
+                       (scroll-after-focus-changed ui keyval new-focus)
                        (set-keyboard-focus ui new-focus))))))
         (or
          (when (and kb-focus (widget-on-key-down kb-focus))
                (setf (layer-dirty (widget-layer ui kb-focus)) t)
-               (funcall (widget-on-key-down kb-focus) ui kb-focus key keymod))
+               (funcall (widget-on-key-down kb-focus) ui kb-focus keyval keymod key))
          (when focused-windows
                (setf (layer-dirty layer) t)
                (loop #:for window #:across focused-windows
                      #:do
                      (when (and (window-on-key-down window)
-                                (funcall (window-on-key-down window) ui window key keymod))
+                                (funcall (window-on-key-down window) ui window keyval keymod key))
                            (return)))))))
   (values))
 
 (export 'emit-key-up)
-(declaim (ftype (function (ui t &key (:layer layer)) (values &optional)) emit-key-up))
-(defun emit-key-up (ui key &key layer)
-  (let ((keymod (or (and (ui-key-to-mod ui) (funcall (ui-key-to-mod ui) key)) 0)))
-    (or
-     (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui))))
-       (when (and kb-focus (widget-on-key-up kb-focus))
-             (setf (layer-dirty (widget-layer ui kb-focus)) t)
-             (funcall (widget-on-key-up kb-focus) ui kb-focus key keymod)))
-     (let ((focused-windows (gethash layer (ui-focused-windows ui))))
-       (when focused-windows
-             (setf (layer-dirty layer) t)
-             (loop #:for window #:across focused-windows
-                   #:do
-                   (when (and (window-on-key-up window)
-                              (funcall (window-on-key-up window) ui window key keymod))
-                         (return)))))))
+(declaim
+  (ftype (function (ui (or null character) key-modifier t &key (:layer layer)) (values &optional))
+         emit-key-up))
+(defun emit-key-up (ui keyval keymod key &key layer)
+  (or
+   (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui))))
+     (when (and kb-focus (widget-on-key-up kb-focus))
+           (setf (layer-dirty (widget-layer ui kb-focus)) t)
+           (funcall (widget-on-key-up kb-focus) ui kb-focus keyval keymod key)))
+   (let ((focused-windows (gethash layer (ui-focused-windows ui))))
+     (when focused-windows
+           (setf (layer-dirty layer) t)
+           (loop #:for window #:across focused-windows
+                 #:do
+                 (when (and (window-on-key-up window)
+                            (funcall (window-on-key-up window) ui window keyval keymod key))
+                       (return))))))
   (values))

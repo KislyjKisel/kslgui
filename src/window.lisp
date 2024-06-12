@@ -20,9 +20,9 @@
   (width 0.0d0 :type double-float)
   (on-focus-recieved nil :type (or null (function (ui window) (values &optional))))
   (on-focus-lost nil :type (or null (function (ui window) (values &optional))))
-  (on-key-action nil :type (or null (function (ui window t key-modifier key-action) (values boolean &optional))))
-  (on-key-down nil :type (or null (function (ui window t key-modifier) (values boolean &optional))))
-  (on-key-up nil :type (or null (function (ui window t key-modifier) (values boolean &optional)))))
+  (on-key-action nil :type (or null (function (ui window key-action key-modifier t) (values boolean &optional))))
+  (on-key-down nil :type (or null (function (ui window (or null character) key-modifier t) (values boolean &optional))))
+  (on-key-up nil :type (or null (function (ui window (or null character) key-modifier t) (values boolean &optional)))))
 
 (export 'destroy-window)
 (declaim (ftype (function (window) (values &optional)) destroy-window))

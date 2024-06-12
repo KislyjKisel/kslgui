@@ -43,6 +43,22 @@
            :zoom-in :zoom-out
            :progress :forbidden))
 
+(export '(+key-modifier-shift-left+
+          +key-modifier-shift-right+
+          +key-modifier-ctrl-left+
+          +key-modifier-ctrl-right+
+          +key-modifier-alt-left+
+          +key-modifier-alt-right+
+          +key-modifier-alt-gr+
+          +key-modifier-gui-left+
+          +key-modifier-gui-right+
+          +key-modifier-num-lock+
+          +key-modifier-caps-lock+
+          +key-modifier-scroll-lock+
+          +key-modifier-ctrl+
+          +key-modifier-shift+
+          +key-modifier-alt+
+          +key-modifier-gui+))
 (defconstant +key-modifier-shift-left+ (ash 1 0))
 (defconstant +key-modifier-shift-right+ (ash 1 1))
 (defconstant +key-modifier-ctrl-left+ (ash 1 2))

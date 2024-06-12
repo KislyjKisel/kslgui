@@ -26,9 +26,6 @@
   (on-text-input-finished nil :type (or null (function () (values &optional))))
   (on-copy nil :type (or null (function (string) (values &optional))))
   (on-paste nil :type (or null (function () (values (or null string) &optional))))
-  (key-to-character nil :type (or null (function (t) (values (or null character) &optional))))
-  (key-to-mod nil :type (or null (function (t) (values key-modifier &optional))))
-  (key-to-action nil :type (or null (function (t) (values (or null key-action) &optional))))
   (fonts (make-hash-table) :type hash-table)
   (yoga-config (yogalayout:config-new) :type %yogalayout:config-ref :read-only t)
   (mouse-owner nil :type (or null widget))
@@ -242,18 +239,6 @@
   (ftype (function (ui) (values cursor &optional)) cursor))
 (defun cursor (ui)
   (ui-cursor ui))
-
-(export 'set-key-to-character)
-(declaim (ftype (function (ui (or null (function (t) (or null character)))) (values &optional)) set-key-to-character))
-(defun set-key-to-character (ui key-to-character)
-  (setf (ui-key-to-character ui) key-to-character)
-  (values))
-
-(export 'set-key-to-action)
-(declaim (ftype (function (ui (or null (function (t) (or null key-action)))) (values &optional)) set-key-to-action))
-(defun set-key-to-action (ui key-to-action)
-  (setf (ui-key-to-action ui) key-to-action)
-  (values))
 
 (export 'current-layer)
 (declaim
