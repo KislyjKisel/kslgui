@@ -36,7 +36,7 @@
   (cursor-layer nil :type (or null layer))
   (cursor-x 0.0 :type single-float)
   (cursor-y 0.0 :type single-float)
-  (focused-window nil :type (or null window))
+  (focused-windows (make-hash-table) :type hash-table)
   (get-keyboard-focus (unreachable) :type (function () (values (or null widget) &optional)) :read-only t)
   (set-keyboard-focus (unreachable) :type (function ((or null widget)) (values &optional)) :read-only t)
   (sdet-context (unreachable) :type sdet:context :read-only t)
@@ -261,13 +261,6 @@
   (ftype (function (ui) (values (or null layer) &optional)) current-layer))
 (defun current-layer (ui)
   (ui-temp-layer ui))
-
-(export 'focused-window)
-(declaim
-  (inline focused-window)
-  (ftype (function (ui) (values (or null window) &optional)) focused-window))
-(defun focused-window (ui)
-  (ui-focused-window ui))
 
 (defmacro define-pool-functions (type-name pool-accessor alloc-form (freed-sym free-form))
   (let ((alloc-fn-sym (intern (concatenate 'string "ALLOC-" type-name)))

@@ -2,7 +2,9 @@
 
 (export '(window create-window window-layer
                  window-x window-y window-width window-height
-                 window-manually-rendered))
+                 window-manually-rendered
+                 window-on-focus-recieved window-on-focus-lost
+                 window-on-key-action window-on-key-down window-on-key-up))
 (defstruct (window (:copier nil)
                    (:constructor create-window (layer &key width height resize-to-contents-x resize-to-contents-y manually-rendered (z-index 0))))
   (resize-to-contents-x nil :type boolean)
@@ -17,7 +19,10 @@
   (height 0.0d0 :type double-float)
   (width 0.0d0 :type double-float)
   (on-focus-recieved nil :type (or null (function (ui window) (values &optional))))
-  (on-focus-lost nil :type (or null (function (ui window) (values &optional)))))
+  (on-focus-lost nil :type (or null (function (ui window) (values &optional))))
+  (on-key-action nil :type (or null (function (ui window t key-modifier key-action) (values boolean &optional))))
+  (on-key-down nil :type (or null (function (ui window t key-modifier) (values boolean &optional))))
+  (on-key-up nil :type (or null (function (ui window t key-modifier) (values boolean &optional)))))
 
 (export 'destroy-window)
 (declaim (ftype (function (window) (values &optional)) destroy-window))
