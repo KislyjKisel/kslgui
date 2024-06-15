@@ -104,7 +104,7 @@
              t)))
       (setf (widget-on-text-input widget) text-input-callback)
       (setf (widget-on-key-action widget)
-        (lambda (ui widget key mod action)
+        (lambda (ui widget action mod key)
           (declare (ignore key mod))
           (when (sdet:compute (widget-enabled-computed widget))
                 (case action

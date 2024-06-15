@@ -3,6 +3,7 @@
 (export '(window create-window window-layer
                  window-x window-y window-width window-height
                  window-manually-rendered
+                 window-widget
                  window-on-focus-recieved window-on-focus-lost
                  window-on-key-action window-on-key-down window-on-key-up))
 (defstruct (window (:copier nil)

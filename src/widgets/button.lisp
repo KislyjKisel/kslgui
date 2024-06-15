@@ -61,7 +61,7 @@
               (disown-mouse ui widget)
               t))
           (setf (widget-on-key-action widget)
-            (lambda (ui widget key mod action)
+            (lambda (ui widget action mod key)
               (declare (ignore ui key mod))
               (and (eq :enter action)
                    (sdet:compute (widget-enabled-computed widget))

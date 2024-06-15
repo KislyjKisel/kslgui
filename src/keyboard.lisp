@@ -44,7 +44,7 @@
 (defun emit-key-down (ui keyval keymod key &key layer)
   (let ((kb-focus (sdet:unobserved (ui-sdet-context ui) (keyboard-focus ui)))
         (focused-windows (gethash layer (ui-focused-windows ui))))
-    (if (and (symbolp keyval) (not (null keyval)))
+    (if (keywordp keyval)
         (or (when (and kb-focus (widget-on-key-action kb-focus))
                   (setf (layer-dirty (widget-layer ui kb-focus)) t)
                   (funcall (widget-on-key-action kb-focus) ui kb-focus keyval keymod key))
