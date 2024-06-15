@@ -101,7 +101,7 @@
           (declare (ignore ui))
           (setf (two-pane-separator-widget-drag-active widget) nil)
           (values))))
-    (values)))
+    widget))
 
 (defun w-two-pane-impl (ui &key
                            axis separator-thickness separator-style threshold on-threshold-changed

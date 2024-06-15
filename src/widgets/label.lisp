@@ -679,7 +679,7 @@
                       (widget-height widget)
                       (label-widget-label widget))
         (values)))
-    (values)))
+    widget))
 
 (export 'w-label)
 (defmacro w-label (&key ui layout let z-index position-type

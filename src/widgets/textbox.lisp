@@ -185,7 +185,7 @@
                                 (* 0.5d0 (- (coerce (widget-height widget) 'double-float) (textbox-widget-cursor-h widget))))
                              2.0d0
                              (textbox-widget-cursor-h widget)))))
-    (values)))
+    widget))
 
 (export 'w-textbox)
 (defmacro w-textbox (&key ui layout let z-index position-type

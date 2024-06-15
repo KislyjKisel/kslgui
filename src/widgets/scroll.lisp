@@ -370,7 +370,7 @@
                         (render-visual ui bar-visual bar-x y bar-width height)
                         (render-visual ui thumb-visual (+ bar-x thumb-bar-offset) thumb-y thumb-width thumb-length))))))
         (values)))
-    (values)))
+    widget))
 
 (export 'w-scroll)
 (defmacro w-scroll (layout (&key ui let z-index position-type

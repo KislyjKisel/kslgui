@@ -35,7 +35,7 @@
                        (coerce (widget-width widget) 'double-float)
                        (coerce (widget-height widget) 'double-float))
         (values)))
-    (values)))
+    widget))
 
 (export 'w-visual)
 (defmacro w-visual (visual (&key ui layout let z-index position-type
