@@ -66,7 +66,7 @@
                 (sdet:compute (two-pane-separator-widget-threshold widget))))
           (setf (two-pane-separator-widget-drag-mouse-start widget)
             (if (eq :x axis) x y))
-          (setf (two-pane-separator-widget-drag-threshold-start widget) threshold))
+          (setf (two-pane-separator-widget-drag-threshold-start widget) (coerce threshold 'single-float)))
         (values)))
     (flet ((calc-new-threshold
             (widget x y)
