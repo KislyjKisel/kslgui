@@ -43,6 +43,27 @@
            :zoom-in :zoom-out
            :progress :forbidden))
 
+(deftype alignment ()
+  '(member :start :center :end))
+
+(deftype alignment-2d ()
+  '(member :left :left-top :left-bottom
+           :center :center-top :center-bottom
+           :right :right-top :right-bottom))
+
+(declaim (ftype (function (alignment-2d) (values alignment alignment &optional)) alignment-2d-separate))
+(defun alignment-2d-separate (alignment)
+  (ecase alignment
+    (:left (values :start :center))
+    (:left-top (values :start :start))
+    (:left-bottom (values :start :end))
+    (:center (values :center :center))
+    (:center-top (values :center :start))
+    (:center-bottom (values :center :end))
+    (:right (values :end :center))
+    (:right-top (values :end :start))
+    (:right-bottom (values :end :end))))
+
 (export '(+key-modifier-shift-left+
           +key-modifier-shift-right+
           +key-modifier-ctrl-left+

@@ -66,8 +66,6 @@
 
 ;;; Label state
 
-(deftype text-alignment () '(member :start :center :end))
-
 (defstruct (label (:copier nil) (:constructor make-label))
   (font-cache)
   (text "")
@@ -75,8 +73,8 @@
   (text-lines (make-array 0 :adjustable t :fill-pointer 0))
   (origin (autowrap:alloc '%blend2d:point))
   (id 0 :type (unsigned-byte 64))
-  (align-horz :start :type text-alignment) ; todo: rename horz/vert to x/y
-  (align-vert :start :type text-alignment)
+  (align-horz :start :type alignment) ; todo: use alignment-2d
+  (align-vert :start :type alignment)
   (measure-func-ffi-cif)
   (measure-func-ffi-args)
   (measure-func-ffi-closure)
