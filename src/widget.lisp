@@ -192,7 +192,7 @@
   (if children
       (let ((widget (or let (gensym))))
         `(lambda (,widget)
-           (declare (ignore ,@(unless let (list widget))))
+           (declare (ignorable ,widget))
            ,@children
            (values)))
       'nil))
