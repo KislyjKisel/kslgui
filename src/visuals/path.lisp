@@ -1,6 +1,6 @@
 (in-package #:kslgui)
 
-(export 'v-path)
+(export 'v-path*)
 (defstruct (path-visual-description (:include shape-visual-description)
                                     (:constructor v-path*
                                                   (path-fn &key fill-rule fill-style border-style border-width
