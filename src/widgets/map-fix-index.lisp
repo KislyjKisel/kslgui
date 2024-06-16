@@ -1,7 +1,7 @@
 (in-package #:kslgui)
 
 (export 'w-map-fix-index*)
-(defun w-map-fix-index* (ui values-computed f &key (equal #'eql))
+(defun w-map-fix-index* (ui values-computed f &key (equal #'eql) (copy :reference))
   (let ((top-placeholder (insert-placeholder ui)))
     (sdet:on-cleanup (sdet-context ui)
       (delete-placeholder top-placeholder)
@@ -18,11 +18,12 @@
                                    (sdet:make-effect (sdet-context ui)
                                      (with-composition-after-placeholder ui placeholder
                                        (funcall f get-val index)))))
-                               :equal equal)
+                               :equal equal
+                               :copy copy)
     (values)))
 
 (export 'w-map-fix-index)
-(defmacro w-map-fix-index (values (get-val-sym index-sym &key ui (equal '#'eql)) &body body)
+(defmacro w-map-fix-index (values (get-val-sym index-sym &key ui (equal '#'eql) (copy :reference)) &body body)
   (let ((actual-get-val-sym (or get-val-sym (gensym)))
         (actual-index-sym (or index-sym (gensym))))
     (macroexpand-with-ui* ui
@@ -32,4 +33,5 @@
                            (declare (ignore ,@(unless get-val-sym (list actual-get-val-sym))
                                             ,@(unless index-sym (list actual-index-sym))))
                            ,@body)
-                         :equal ,equal))))
+                         :equal ,equal
+                         :copy ,copy))))
