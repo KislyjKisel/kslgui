@@ -48,15 +48,13 @@
         (or (when (and kb-focus (widget-on-key-action kb-focus))
                   (setf (layer-dirty (widget-layer ui kb-focus)) t)
                   (funcall (widget-on-key-action kb-focus) ui kb-focus keyval keymod key))
-            (progn
-             (format t "Checking ~A~%" (length focused-windows))
             (when focused-windows
                   (setf (layer-dirty layer) t)
                   (loop #:for window #:across focused-windows
                         #:do
                         (when (and (window-on-key-action window)
                                    (funcall (window-on-key-action window) ui window keyval keymod key))
-                              (return t)))))
+                              (return t))))
             (cond
              ((and kb-focus (or (eq keyval :up)
                                 (eq keyval :down)
