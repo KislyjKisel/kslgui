@@ -177,7 +177,7 @@
                                   #:do (when (and (>= x (window-x window))
                                                   (>= y (window-y window))
                                                   (< x (+ (window-x window) (window-width window)))
-                                                  (< y (+ (window-x window) (window-height window))))
+                                                  (< y (+ (window-y window) (window-height window))))
                                              (vector-push-extend window focused-windows)))))
                     (setf (gethash layer (ui-focused-windows ui)) focused-windows))))
         (if (ui-mouse-owner ui)
