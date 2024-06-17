@@ -289,6 +289,7 @@
           (funcall (ui-drag-on-drop ui)))
     (setf (ui-drag-value ui) nil)
     (setf (ui-drag-on-drop ui) nil)
+    (setf (ui-drag-owner ui) nil)
     value-taken))
 
 (export 'dragged-value)
